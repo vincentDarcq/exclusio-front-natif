@@ -1,0 +1,267 @@
+.films {
+    position: relative;
+}
+
+.films-filters p {
+    margin: 0;
+}
+
+.films-filters .film-header-tab{
+    cursor: pointer;
+    padding: 10px;
+}
+
+.films-filters .active {
+    cursor: pointer;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+.films-filters .films-filters-tabs{
+    width: fit-content;
+    margin: auto;
+    gap: 20px;
+}
+
+.films-filters .genres, .films-filters .directors, .films-filters .actors{
+    padding: 10px;
+    margin: auto;
+    height: 110px;
+    width: 80vw;
+    border: solid 2px rgba(0, 0, 0, 0.3);
+    justify-content: center;
+    img {
+        width: 100px;
+    }
+}
+.films-filters .element {
+    width: 180px;
+}
+
+.films-filters .directors, .films-filters .actors {
+    height: 400px;
+    overflow: auto;
+    .element{
+        margin: 10px;
+        cursor: pointer;
+        border: solid 1px #FFFF;
+        border-radius: 10px;
+    }
+}
+
+.films-filters .flex-column{
+    justify-content: start;
+}
+
+.films-filters .directors .element, .films-filters .actors .element {
+    width: 100px;
+}
+
+
+.films-filters .exclude {
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    text-decoration-color: black;
+}
+
+.films-filters .include {
+    background-color: #FFFF;
+    color: black;
+}
+
+.films-filters input[type=checkbox] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    border-radius: 4px;
+    height: 13px;
+    width: 13px;
+    margin: 0;
+    background: transparent;
+    border: 2px solid #ccc;
+    cursor: pointer;
+}
+.list-directors input[type=checkbox], .list-actors input[type=checkbox]{
+    margin: 5px;
+}
+
+.films-filters input[type="checkbox"]:checked {
+  background: #FFFF !important;
+}
+
+.fa-arrow-circle-down {
+    margin: auto;
+    cursor: pointer;
+}
+
+.films-filters input {
+    width: fit-content;
+    margin: 0 auto;
+    border-radius: 10px;
+    border: none;
+}
+
+.directors input, .actors input {
+    padding: 8px;
+}
+
+.filter-mode {
+    border: solid .8px #FFFF;
+    border-radius: 10px;
+    background-color: #28226e;
+    color: #FFFF;
+    padding: 5px;
+    margin: 5px;
+    cursor: pointer;
+}
+.filter-mode:hover{
+    background-color: #4a4675;
+}
+
+.selection_films{
+    width:70vw;
+    margin: 25px auto;
+    border-bottom: solid 1px #FFFF;
+}
+.carousels {
+    position: relative;
+    width: 80vw;
+    margin: 10px auto;
+}
+.films_1, .films_2, .films_3 {
+    position: absolute;
+    width: 90%;
+    gap: 40px;
+    padding-bottom: 30px;
+}
+.films_2 {
+    top: 150px;
+}
+.films_3 {
+    top: 300px;
+}
+.films_1 > img, .films_2 > img, .films_3 > img {
+    width: 120px;
+    cursor: pointer;
+    flex: 1 1 0;
+    object-fit: cover;
+    min-width: 0;
+}
+
+.img-movie:hover {
+    scale: 1.2;
+}
+
+.fa-arrow-circle-right, .spinner-carrousel-right {
+    position: absolute;
+    top: 28vh;
+    right: 0;
+    cursor: pointer;
+}
+
+.fa-arrow-circle-left, .spinner-carrousel-left {
+    position: absolute;
+    top: 28vh;
+    left: -60px;
+    cursor: pointer;
+}
+
+.movie-titre-no-cov {
+    width: 100px;
+    cursor: pointer;
+    border: solid 1px #FFFF;
+}
+
+.carousels .arrow-invisible{
+    color: transparent;
+}
+
+.enter-right {
+  animation: enterFromRight 0.5s ease forwards;
+}
+
+.enter-left {
+  animation: enterFromLeft 0.5s ease forwards;
+}
+
+.leave-left {
+  animation: leaveToLeft 0.5s ease forwards;
+}
+
+.leave-right {
+  animation: leaveToRight 0.5s ease forwards;
+}
+
+@keyframes enterFromRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes enterFromLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes leaveToLeft {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100%); opacity: 0; }
+}
+
+@keyframes leaveToRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+
+.film-popup{
+    display: none;
+    position: fixed;
+    background: #0F0C29;
+    background-image: -webkit-linear-gradient(to right, #24243E, #28226e, #0F0C29);
+    background-image: linear-gradient(to right, #24243E, #28226e, #0F0C29);
+    left: 15%;
+    top: 10%;
+    z-index: 150;
+    border-radius: 10px;
+    height: 70vh;
+    width: 60vw;
+    padding: 20px;
+    box-shadow: 0px 0px 3px 3px #28226e;
+}
+
+.film-popup .header {
+    justify-content: space-between;
+}
+
+.film-popup .cross{
+    padding: 5px;
+    border-radius: 50%;
+    border: solid 1px #FFFF;
+    height: 18px;
+    cursor: pointer;
+}
+
+.film-popup .film-title {
+    width: fit-content;
+    margin: 10px auto;
+}
+.film-popup .infos {
+    justify-content: space-between;
+    .flex-column{
+        width: 70%;
+    }
+}
+.film-popup p {
+    height: 200px;
+    overflow-y: auto;
+}
+
+.film-popup .notes {
+    gap: 30px;
+}
+.film-popup img {
+    width: 120px;
+}
+
+.film-popup h4 {
+    margin: 5px;
+}

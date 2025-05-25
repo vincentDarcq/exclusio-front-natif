@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="films/films.css">
+        <script src="https://kit.fontawesome.com/019add8368.js" crossorigin="anonymous"></script>
+        <title>Exclusio</title>
+    </head>
+    <body>
+        <header class="flex main-header">
+            <h2 class="title-site">Exclusio</h2>
+            <p class="main-header-tab" onclick="handleRedirect('films')">Films</p>
+            <p class="main-header-tab" onclick="handleRedirect('series')">Series</p>
+            <div class="main-header-tab" id="global-search">
+                <input placeholder="Recherche" type="text" class="globalSearch" oninput="globalSearch()"/>
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <!-- <div class="main-header-tab identifier">
+                <span class="btn btn-link mb-2">S'identifier</span>
+                <i class="fa fa-user"></i>
+            </div>
+            <p class="main-header-tab" onclick="handleRedirect('signup')">Créer un compte</p> -->
+        </header>
+        <div class="exclusio-description">
+            <h3>Vous ne savez pas ce que vous voulez, mais vous savez ce que vous ne voulez pas... Exclusio est là !</h3>
+            <h3>Un simple clique et vous enlevez ce qui ne vous plait pas, Exclusio se charge du reste !</h3>
+        </div>
+        <div class="films">
+            <div class="films-filters">
+                <header class="flex films-filters-tabs">
+                    <p class="film-header-tab tab-genres" onclick="switchFilmsTabFilters('genres')">Exclusion des genres</p>
+                    <p class="film-header-tab tab-directors" onclick="switchFilmsTabFilters('directors')">Exclusion des réalisateurs</p>
+                    <p class="film-header-tab tab-actors" onclick="switchFilmsTabFilters('actors')">Exclusion des acteurs</p>
+                    <button class="filter-mode" onclick="switchMode()">Passer en mode inclusion</button>
+                </header>
+                <div class="genres flex">
+                    <div class="element">
+                        <input type="checkbox" value="ANIMATION" onchange="genreSelected(this)">
+                        <span class="ANIMATION">Animation</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="BIOPIC" onchange="genreSelected(this)">
+                        <span class="BIOPIC">Biopic</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="COMEDIE" onchange="genreSelected(this)">
+                        <span class="COMEDIE">Comédie</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="DOCUMENTAIRE" onchange="genreSelected(this)">
+                        <span class="DOCUMENTAIRE">Documentaire</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="DRAME" onchange="genreSelected(this)">
+                        <span class="DRAME">Drame</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="HISTOIRE" onchange="genreSelected(this)">
+                        <span class="HISTOIRE">Historique</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="THRILLER" onchange="genreSelected(this)">
+                        <span class="THRILLER">Thriller</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="EPOUVANTE_HORREUR" onchange="genreSelected(this)">
+                        <span class="EPOUVANTE_HORREUR">Epouvante-horreur</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="SCIENCE_FICTION" onchange="genreSelected(this)">
+                        <span class="SCIENCE_FICTION">Science-fiction</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="AVENTURE" onchange="genreSelected(this)">
+                        <span class="AVENTURE">Aventure</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="ACTION" onchange="genreSelected(this)">
+                        <span class="ACTION">Action</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="ROMANCE" onchange="genreSelected(this)">
+                        <span class="ROMANCE">Romance</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="FANTASY" onchange="genreSelected(this)">
+                        <span class="FANTASY">Fantastique</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="POLICIER" onchange="genreSelected(this)">
+                        <span class="POLICIER">Policier</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="WESTERN" onchange="genreSelected(this)">
+                        <span class="WESTERN">Westerne</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="MUSICAL" onchange="genreSelected(this)">
+                        <span class="MUSICAL">Musical</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="GUERRE" onchange="genreSelected(this)">
+                        <span class="GUERRE">Guerre</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="COMEDIE_DRAMATIQUE" onchange="genreSelected(this)">
+                        <span class="COMEDIE_DRAMATIQUE">Comédie dramatique</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="COMEDIE_MUSICALE" onchange="genreSelected(this)">
+                        <span class="COMEDIE_MUSICALE">Comédie musicale</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="JUDICIAIRE" onchange="genreSelected(this)">
+                        <span class="JUDICIAIRE">Judiciaire</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="ARTS_MARTIAUX" onchange="genreSelected(this)">
+                        <span class="ARTS_MARTIAUX">Arts martiaux</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="BOLLYWOOD" onchange="genreSelected(this)">
+                        <span class="BOLLYWOOD">Bollywood</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="PEPLUM" onchange="genreSelected(this)">
+                        <span class="PEPLUM">Péplum</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="DIVERS" onchange="genreSelected(this)">
+                        <span class="DIVERS">Divers</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="EROTIQUE" onchange="genreSelected(this)">
+                        <span class="EROTIQUE">Erotique</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="CONCERT" onchange="genreSelected(this)">
+                        <span class="CONCERT">Concert</span>
+                    </div>
+                    <div class="element">
+                        <input type="checkbox" value="ESPIONNAGE" onchange="genreSelected(this)">
+                        <span class="ESPIONNAGE">Espionnage</span>
+                    </div>
+                </div>
+                <div class="directors flex-column">
+                    <input class="searchDirector" placeholder="Recherche réalisateur" type="text" oninput="directorChange()" />
+                    <div class="flex list-directors"></div>
+                    <span class="fa fa-2x fa-arrow-circle-down" onclick="moreDirectors()"></span>
+                </div>
+                <div class="actors flex-column">
+                    <input class="searchActor" placeholder="Recherche acteur" type="text" oninput="actorChange()" />
+                    <div class="flex list-actors"></div>
+                    <span class="fa fa-2x fa-arrow-circle-down" onclick="moreActors()"></span>
+                </div>
+            </div>
+            <h4 class="selection_films">Sélection de films</h4>
+            <div class="flex carousels">
+                <span class="fa fa-2x fa-arrow-circle-left arrow-invisible"></span>
+                <div class="lines flex-column">
+                    <div class="flex films_1"></div>
+                    <div class="flex films_2"></div>
+                    <div class="flex films_3"></div>
+                </div>
+                <span class="fa fa-2x fa-arrow-circle-right"></span>
+            </div>
+            <div class="film-popup"></div>
+        </div>
+        <div class="series">
+            <h1>Series</h1>
+        </div>
+        <script type="module" src="dist/index.js"></script>
+        <script type="module" src="dist/routes.js"></script>
+        <script type="module" src="dist/films/films.js"></script>
+    </body>
+</html>
