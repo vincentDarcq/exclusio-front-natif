@@ -7,9 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { debounce, loaderLeft, loaderRight, searchMovieInGlobal } from "../index.js";
+import { debounce, loaderLeft, loaderRight, searchSerieInGlobal } from "../index.js";
 export const API_URL = 'http://localhost:8080';
-let allMovies = [];
+let allSeries = [];
 let allActors = [];
 let allDirectors = [];
 let genresToFilter = [];
@@ -20,17 +20,18 @@ let indexFilterActors = 0;
 let indexFilterDirectors = 0;
 let directorsElements = document.querySelector('.directors');
 let actorsElements = document.querySelector('.actors');
-const caroussels = document.querySelector('.carousels');
+const caroussels = document.querySelectorAll('.carousels');
+const carouselSerie = caroussels[1];
 const loader = document.createElement('i');
 loader.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto');
 const arrowDown = document.createElement('span');
 arrowDown.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
-const arrowLeft = document.querySelector('.fa-arrow-circle-left');
-const arrowRight = document.querySelector('.fa-arrow-circle-right');
-switchFilmsTabFilters('genres');
-fetchActors();
-fetchDirectors();
-fetchFilms(0);
+const arrowLeft = document.querySelector('.arrow-left-serie');
+const arrowRight = document.querySelector('.arrow-right-serie');
+switchSeriesTabFilters('genres');
+// fetchActors();
+// fetchDirectors();
+fetchSeries(0);
 export function switchMode() {
     filterMode = filterMode === "exclusion" ? "inclusion" : "exclusion";
     const button = document.querySelector('.filter-mode');
@@ -43,7 +44,7 @@ export function switchMode() {
     directorsTab.innerHTML = `${modeForTab} des réalisateurs`;
     actorsTab.innerHTML = `${modeForTab} des acteurs`;
 }
-export function switchFilmsTabFilters(tab) {
+export function switchSeriesTabFilters(tab) {
     return __awaiter(this, void 0, void 0, function* () {
         indexFilterActors = 0;
         indexFilterDirectors = 0;
@@ -93,7 +94,7 @@ function getPersonElement(type_1, person_1) {
         const picture = yield fetchPersonPicture(person);
         return `
     <div class="element flex-column"
-      ${type === 'actor' ? `onclick="actorSelected('${selector}')"` : `onclick="directorSelected('${selector}')"`}
+      ${type === 'actor' ? `onclick="actorSelectedForSerie('${selector}')"` : `onclick="directorSelectedForSerie('${selector}')"`}
     >
       ${picture ? `<img src="${picture}" alt="actor">` : ''}
       <span class="
@@ -118,9 +119,9 @@ function moreActors() {
             const i = actorsToFilter.findIndex(a => a === actor);
             const picture = yield fetchPersonPicture(actor);
             return `
-          <div class="element flex-column" id="${selector}" onclick="actorSelected('${selector}')">
+          <div class="element flex-column" id="${selector}" onclick="actorSelectedForSerie('${selector}')">
             ${picture ? `<img src="${picture}" alt="actor">` : ''}
-            <span class="${selector} ${i !== -1 ? 'element-selected' : ''} margin-auto">${actor}</span>
+            <span class="${selector} ${i !== -1 ? 'element-selected' : ''}">${actor}</span>
           </div>
         `;
         })));
@@ -140,7 +141,7 @@ function moreDirectors() {
             return `
           <div class="element flex-column">
             ${picture ? `<img src= "${picture}" alt = "director" >` : ''}
-            <span class="${selector} ${i !== -1 ? 'element-selected' : ''} margin-auto">${director}</span>
+            <span class="${selector} ${i !== -1 ? 'element-selected' : ''}">${director}</span>
           </div>
         `;
         })));
@@ -186,9 +187,9 @@ export function genreSelected(checkbox) {
     else {
         genresToFilter.splice(genresToFilter.findIndex(g => g === checkbox.value), 1);
     }
-    fetchFilms(0);
+    fetchSeries(0);
 }
-export function actorSelected(actor) {
+export function actorSelectedForSerie(actor) {
     const indexActor = allActors.map(a => a.replace(/\s+/g, '')).findIndex(a => a === actor);
     const element = document.querySelector(`.${actor}`);
     const actorChecked = actorsToFilter.map(a => a.replace(/\s+/g, '')).includes(actor);
@@ -200,9 +201,9 @@ export function actorSelected(actor) {
         element.classList.add(`${filterMode === "exclusion" ? 'exclude' : 'include'}`);
         actorsToFilter.push(allActors[indexActor]);
     }
-    fetchFilms(0);
+    fetchSeries(0);
 }
-export function directorSelected(director) {
+export function directorSelectedForSerie(director) {
     const indexDirector = allDirectors.map(d => d.replace(/\s+/g, '')).findIndex(d => d === director);
     const element = document.querySelector(`.${director}`);
     const actorChecked = directorsToFilter.map(a => a.replace(/\s+/g, '')).includes(director);
@@ -214,67 +215,67 @@ export function directorSelected(director) {
         element.classList.add(`${filterMode === "exclusion" ? 'exclude' : 'include'}`);
         directorsToFilter.push(allDirectors[indexDirector]);
     }
-    fetchFilms(0);
+    fetchSeries(0);
 }
-export function selectMovie(id) {
+export function selectSerie(id) {
     return __awaiter(this, void 0, void 0, function* () {
-        let movie = allMovies.find(movie => movie.id === parseInt(id));
-        if (!movie)
-            movie = searchMovieInGlobal(id);
-        const popup = document.querySelector('.film-popup');
-        const emptyCov = movie === null || movie === void 0 ? void 0 : movie.covPortrait.indexOf('empty');
+        let serie = allSeries.find(serie => serie.id === parseInt(id));
+        if (!serie)
+            serie = searchSerieInGlobal(id);
+        const popup = document.querySelector('.serie-popup');
+        const emptyCov = serie === null || serie === void 0 ? void 0 : serie.covPortrait.indexOf('empty');
         popup.innerHTML = `
     <div class="flex header">
-      <h2 class="film-title">${movie === null || movie === void 0 ? void 0 : movie.titre}</h2>
-      <div class="cross" onClick="closePopup()">X</div>
+      <h2 class="serie-title">${serie === null || serie === void 0 ? void 0 : serie.titre}</h2>
+      <div class="cross" onClick="closePopupSerie()">X</div>
     </div>
     <div class="flex infos">
       <div class="flex-column">
-        <h4>Genres : ${movie === null || movie === void 0 ? void 0 : movie.genre}</h4>
-        <h4>Casting : ${movie === null || movie === void 0 ? void 0 : movie.casting}</h4>
-        <h4>Réalisateur: ${movie === null || movie === void 0 ? void 0 : movie.realisateur}</h4>
-        <h4>Durée: ${movie === null || movie === void 0 ? void 0 : movie.time}</h4>
-        <h4>Année: ${movie === null || movie === void 0 ? void 0 : movie.year}</h4>
+        <h4>Genres : ${serie === null || serie === void 0 ? void 0 : serie.genre}</h4>
+        <h4>Casting : ${serie === null || serie === void 0 ? void 0 : serie.casting}</h4>
+        <h4>Réalisateur: ${serie === null || serie === void 0 ? void 0 : serie.realisateur}</h4>
+        <h4>Episodes: ${serie === null || serie === void 0 ? void 0 : serie.episodes}</h4>
+        <h4>Saisons: ${serie === null || serie === void 0 ? void 0 : serie.seasons}</h4>
+        <h4>${serie === null || serie === void 0 ? void 0 : serie.year}</h4>
       </div>
-      ${emptyCov === -1 ? `<img src="${movie === null || movie === void 0 ? void 0 : movie.covPortrait}" alt="cov" >` : ''}
+      ${emptyCov === -1 ? `<img src="${serie === null || serie === void 0 ? void 0 : serie.covPortrait}" alt="cov" >` : ''}
     </div>
-    ${(movie === null || movie === void 0 ? void 0 : movie.synopsis) ? `<p>${movie === null || movie === void 0 ? void 0 : movie.synopsis} </p>` : ''}
+    ${(serie === null || serie === void 0 ? void 0 : serie.synopsis) ? `<p>${serie === null || serie === void 0 ? void 0 : serie.synopsis} </p>` : ''}
     <div class="flex notes">
-      ${(movie === null || movie === void 0 ? void 0 : movie.alloGrade) ? `<span>Note allociné: ${movie === null || movie === void 0 ? void 0 : movie.alloGrade}/5</span >` : ''}
-      ${(movie === null || movie === void 0 ? void 0 : movie.imdbGrade) ? `<span>Note Imdb: ${movie.imdbGrade}/10</span>` : ''}
+      ${(serie === null || serie === void 0 ? void 0 : serie.alloGrade) ? `<span>Note allociné: ${serie === null || serie === void 0 ? void 0 : serie.alloGrade}/5</span >` : ''}
     </div>
   `;
         popup.style.display = 'block';
     });
 }
-export function closePopup() {
-    const popup = document.querySelector('.film-popup');
+export function closePopupSerie() {
+    const popup = document.querySelector('.serie-popup');
     popup.style.display = 'none';
 }
 function fetchActors() {
     return __awaiter(this, void 0, void 0, function* () {
-        const result = yield fetch(`${API_URL}/movies/acteurs`);
+        const result = yield fetch(`${API_URL}/series/acteurs`);
         const content = yield result.json();
         allActors = content;
     });
 }
 function fetchDirectors() {
     return __awaiter(this, void 0, void 0, function* () {
-        const result = yield fetch(`${API_URL}/movies/realisateurs`);
+        const result = yield fetch(`${API_URL}/series/realisateurs`);
         const content = yield result.json();
         allDirectors = content;
     });
 }
 export function navigate(direction, page) {
     return __awaiter(this, void 0, void 0, function* () {
-        fetchFilms(page, direction);
+        fetchSeries(page, direction);
     });
 }
-function fetchFilms(page, direction) {
+function fetchSeries(page, direction) {
     return __awaiter(this, void 0, void 0, function* () {
         if (direction)
-            caroussels.replaceChild(direction === 'right' ? loaderRight : loaderLeft, caroussels.children[direction === 'right' ? 2 : 0]);
-        const result = yield fetch(`${API_URL}/movies/${filterMode === "exclusion" ? 'exclusions' : 'inclusions'}/${page}`, {
+            carouselSerie.replaceChild(direction === 'right' ? loaderRight : loaderLeft, carouselSerie.children[direction === 'right' ? 2 : 0]);
+        const result = yield fetch(`${API_URL}/series/${filterMode === "exclusion" ? 'exclusions' : 'inclusions'}/${page}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -286,7 +287,7 @@ function fetchFilms(page, direction) {
             })
         });
         const content = yield result.json();
-        const movies = content.content;
+        const series = content.content;
         arrowRight.onclick = () => __awaiter(this, void 0, void 0, function* () {
             yield navigate('right', page + 1);
         });
@@ -301,39 +302,39 @@ function fetchFilms(page, direction) {
             if (!arrowLeft.classList.contains('arrow-invisible'))
                 arrowLeft === null || arrowLeft === void 0 ? void 0 : arrowLeft.classList.add('arrow-invisible');
         }
-        fillLine(movies.slice(0, 8), 1, direction);
-        fillLine(movies.slice(8, 16), 2, direction);
-        fillLine(movies.slice(16), 3, direction);
+        fillLine(series.slice(0, 8), 1, direction);
+        fillLine(series.slice(8, 16), 2, direction);
+        fillLine(series.slice(16), 3, direction);
         if (direction)
-            caroussels.replaceChild(direction === 'right' ? arrowRight : arrowLeft, caroussels.children[direction === 'right' ? 2 : 0]);
+            carouselSerie.replaceChild(direction === 'right' ? arrowRight : arrowLeft, carouselSerie.children[direction === 'right' ? 2 : 0]);
     });
 }
-function fillLine(movies, line, direction) {
+function fillLine(series, line, direction) {
     let html = '';
-    movies.forEach(movie => {
-        if (allMovies.findIndex(m => m.id === movie.id) === -1) {
-            allMovies.push(movie);
+    series.forEach(serie => {
+        if (allSeries.findIndex(m => m.id === serie.id) === -1) {
+            allSeries.push(serie);
         }
-        const emptyCov = movie.covPortrait.indexOf('empty');
+        const emptyCov = serie.covPortrait.indexOf('empty');
         html += `
-        ${emptyCov === -1 ? `<img class="img-movie" src="${movie.covPortrait}" alt="${movie.titre}" onclick="selectMovie(${movie.id})" >`
-            : `<span class="titre-no-cov" onclick="selectMovie(${movie.id})">${movie.titre}</span>`}
+        ${emptyCov === -1 ? `<img class="img-serie" src="${serie.covPortrait}" alt="${serie.titre}" onclick="selectSerie(${serie.id})" >`
+            : `<span class="titre-no-cov" onclick="selectSerie(${serie.id})">${serie.titre}</span>`}
       `;
     });
     if (direction) {
         slide(direction, line, html);
     }
     else {
-        const slide = document.querySelector(`.films_${line}`);
+        const slide = document.querySelector(`.series_${line}`);
         slide.innerHTML = html;
     }
 }
 function slide(direction, line, content) {
-    const container = document.querySelector('.lines');
+    const container = document.querySelector('.lines-series');
     const newSlide = document.createElement('div');
-    newSlide.classList.add('flex', `films_${line}`, `enter-${direction}`);
+    newSlide.classList.add('flex', `series_${line}`, `enter-${direction}`);
     newSlide.innerHTML = content;
-    const oldSlide = document.querySelector(`.films_${line}`);
+    const oldSlide = document.querySelector(`.series_${line}`);
     oldSlide.classList.add(`leave-${direction === 'right' ? 'left' : 'right'}`);
     oldSlide.addEventListener('animationend', () => {
         oldSlide.remove();
@@ -341,13 +342,13 @@ function slide(direction, line, content) {
     container.insertBefore(newSlide, container.children[line]);
     updateTopPositions();
 }
-window.closePopup = closePopup;
-window.selectMovie = selectMovie;
-window.switchFilmsTabFilters = switchFilmsTabFilters;
+window.closePopupSerie = closePopupSerie;
+window.selectSerie = selectSerie;
+window.switchSeriesTabFilters = switchSeriesTabFilters;
 window.navigate = navigate;
 window.genreSelected = genreSelected;
-window.directorSelected = directorSelected;
-window.actorSelected = actorSelected;
+window.directorSelectedForSerie = directorSelectedForSerie;
+window.actorSelectedForSerie = actorSelectedForSerie;
 window.actorChange = actorChange;
 window.directorChange = directorChange;
 window.switchMode = switchMode;
@@ -355,11 +356,11 @@ window.moreActors = moreActors;
 window.moreDirectors = moreDirectors;
 function updateTopPositions() {
     const viewportWidth = window.innerWidth;
-    const films2 = document.querySelector('.films_2');
-    const films3 = document.querySelector('.films_3');
-    if (films2 && films3) {
-        films2.style.top = `${viewportWidth * 0.12}px`;
-        films3.style.top = `${viewportWidth * 0.25}px`;
+    const series2 = document.querySelector('.series_2');
+    const series3 = document.querySelector('.series_3');
+    if (series2 && series3) {
+        series2.style.top = `${viewportWidth * 0.12}px`;
+        series3.style.top = `${viewportWidth * 0.25}px`;
     }
 }
 // Appelle la fonction au chargement et au redimensionnement

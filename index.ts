@@ -1,6 +1,7 @@
 import { API_URL } from './films/films.js';
 import { Movie } from './films/movie_type.js';
 import { routes } from './routes.js';
+import { Serie } from './series/serie_type.js';
 const baseUrl = window.location.origin;
 if (window.location.pathname !== '/') {
   handleRedirect(window.location.pathname.substring(1))
@@ -8,8 +9,12 @@ if (window.location.pathname !== '/') {
   const route = routes.find(r => r.path === '');
   handleRedirect(route!.class);
 }
-export let globalSearchList: Array<Movie> = [];
+export let globalSearchList: Array<Movie | Serie> = [];
 const searchElement = document.getElementById('global-search') as HTMLElement;
+export const loaderRight = document.createElement('i');
+loaderRight.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto', 'spinner-carrousel-right');
+export const loaderLeft = document.createElement('i');
+loaderLeft.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto', 'spinner-carrousel-left');
 
 declare global {
   interface Window {
@@ -28,9 +33,11 @@ export function handleRedirect(url: string): void {
     const page = document.querySelector(`.${route.class}`) as HTMLElement;
     if (route.class !== url) {
       page.style.display = "none";
+      removeActiveClass(route.class);
     } else {
       routeFound = true;
       page.style.display = "block";
+      addActiveClass(route.class);
       history.pushState({}, '', `${baseUrl}/${route.class}`);
     }
   });
@@ -39,8 +46,19 @@ export function handleRedirect(url: string): void {
     const route = routes.find(r => r.path === '**');
     const page = document.querySelector(`.${route!.class}`) as HTMLElement;
     page.style.display = "block";
+    addActiveClass(route!.class);
     history.pushState({}, '', baseUrl);
   }
+}
+
+function removeActiveClass(route: string) {
+  const element = document.querySelector(`.${route}-header`) as HTMLElement;
+  element.classList.remove('active-head');
+}
+
+function addActiveClass(route: string) {
+  const element = document.querySelector(`.${route}-header`) as HTMLElement;
+  element.classList.add('active-head');
 }
 
 async function search(){
@@ -88,7 +106,11 @@ export function removeGlobalResult() {
 }
 
 export function searchMovieInGlobal(id: string): Movie | undefined{
-  return globalSearchList.find(movie => movie.id === parseInt(id))
+  return globalSearchList.find(movie => movie.id === parseInt(id)) as Movie
+}
+
+export function searchSerieInGlobal(id: string): Serie | undefined{
+  return globalSearchList.find(serie => serie.id === parseInt(id)) as Serie
 }
 
 window.handleRedirect = handleRedirect;

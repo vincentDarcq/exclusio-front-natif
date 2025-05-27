@@ -10,12 +10,6 @@
     cursor: pointer;
     padding: 10px;
 }
-
-.films-filters .active {
-    cursor: pointer;
-    padding: 10px;
-    background-color: rgba(0, 0, 0, 0.3);
-}
 .films-filters .films-filters-tabs{
     width: fit-content;
     margin: auto;
@@ -123,25 +117,15 @@
     margin: 25px auto;
     border-bottom: solid 1px #FFFF;
 }
-.carousels {
-    position: relative;
-    width: 80vw;
-    margin: 10px auto;
-}
+
 .films_1, .films_2, .films_3 {
     position: absolute;
     width: 90%;
     gap: 40px;
     padding-bottom: 30px;
 }
-.films_2 {
-    top: 150px;
-}
-.films_3 {
-    top: 300px;
-}
+
 .films_1 > img, .films_2 > img, .films_3 > img {
-    width: 120px;
     cursor: pointer;
     flex: 1 1 0;
     object-fit: cover;
@@ -150,26 +134,6 @@
 
 .img-movie:hover {
     scale: 1.2;
-}
-
-.fa-arrow-circle-right, .spinner-carrousel-right {
-    position: absolute;
-    top: 28vh;
-    right: 0;
-    cursor: pointer;
-}
-
-.fa-arrow-circle-left, .spinner-carrousel-left {
-    position: absolute;
-    top: 28vh;
-    left: -60px;
-    cursor: pointer;
-}
-
-.movie-titre-no-cov {
-    width: 100px;
-    cursor: pointer;
-    border: solid 1px #FFFF;
 }
 
 .carousels .arrow-invisible{
@@ -190,26 +154,6 @@
 
 .leave-right {
   animation: leaveToRight 0.5s ease forwards;
-}
-
-@keyframes enterFromRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes enterFromLeft {
-  from { transform: translateX(-100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes leaveToLeft {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(-100%); opacity: 0; }
-}
-
-@keyframes leaveToRight {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(100%); opacity: 0; }
 }
 
 .film-popup{

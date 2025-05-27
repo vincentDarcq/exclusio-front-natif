@@ -1,15 +1,15 @@
-import { debounce, loaderLeft, loaderRight, searchMovieInGlobal } from "../index.js";
-import { Movie } from "./movie_type.js";
+import { debounce, loaderLeft, loaderRight, searchSerieInGlobal } from "../index.js";
+import { Serie } from "./serie_type.js";
 
 declare global {
   interface Window {
-    switchFilmsTabFilters: (url: string) => Promise<void>;
-    selectMovie(id: string): Promise<void>;
+    switchSeriesTabFilters: (url: string) => Promise<void>;
+    selectSerie(id: string): Promise<void>;
     navigate(direction: string, carousel: number, page: number): void;
-    closePopup: () => void;
-    genreSelected: (checkbox: HTMLInputElement) => void;
-    actorSelected: (actor: string) => void;
-    directorSelected: (director: string) => void;
+    closePopupSerie: () => void;
+    genreSelectedForSerie: (checkbox: HTMLInputElement) => void;
+    actorSelectedForSerie: (actor: string) => void;
+    directorSelectedForSerie: (director: string) => void;
     actorChange: () => void;
     directorChange: () => void;
     switchMode: () => void;
@@ -19,7 +19,7 @@ declare global {
 }
 
 export const API_URL = 'http://localhost:8080';
-let allMovies: Array<Movie> = [];
+let allSeries: Array<Serie> = [];
 let allActors: Array<string> = [];
 let allDirectors: Array<string> = [];
 let genresToFilter: Array<string> = [];
@@ -30,19 +30,19 @@ let indexFilterActors = 0;
 let indexFilterDirectors = 0;
 let directorsElements = document.querySelector('.directors') as HTMLElement;
 let actorsElements = document.querySelector('.actors') as HTMLElement;
-const caroussels = document.querySelector('.carousels') as HTMLElement;
+const caroussels = document.querySelectorAll('.carousels');
+const carouselSerie = caroussels![1] as HTMLElement;
 const loader = document.createElement('i');
 loader.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto');
-
 const arrowDown = document.createElement('span');
 arrowDown.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
-const arrowLeft = document.querySelector('.fa-arrow-circle-left') as HTMLElement;
-const arrowRight = document.querySelector('.fa-arrow-circle-right') as HTMLElement;
+const arrowLeft = document.querySelector('.arrow-left-serie') as HTMLElement;
+const arrowRight = document.querySelector('.arrow-right-serie') as HTMLElement;
   
-switchFilmsTabFilters('genres');
-fetchActors();
-fetchDirectors();
-fetchFilms(0);
+switchSeriesTabFilters('genres');
+// fetchActors();
+// fetchDirectors();
+fetchSeries(0);
 
 export function switchMode(){
   filterMode = filterMode === "exclusion" ? "inclusion" : "exclusion";
@@ -57,7 +57,7 @@ export function switchMode(){
   actorsTab.innerHTML = `${modeForTab} des acteurs`;
 }
 
-export async function switchFilmsTabFilters(tab: string): Promise<void> {
+export async function switchSeriesTabFilters(tab: string): Promise<void> {
   indexFilterActors = 0;
   indexFilterDirectors = 0;
   ['genres', 'directors', 'actors'].filter(t => t !== tab).forEach(
@@ -124,7 +124,7 @@ async function getPersonElement(type: string, person: string, filter = false): P
   const picture = await fetchPersonPicture(person);
   return `
     <div class="element flex-column"
-      ${type === 'actor' ? `onclick="actorSelected('${selector}')"` : `onclick="directorSelected('${selector}')"`}
+      ${type === 'actor' ? `onclick="actorSelectedForSerie('${selector}')"` : `onclick="directorSelectedForSerie('${selector}')"`}
     >
       ${picture ? `<img src="${picture}" alt="actor">` : ''}
       <span class="
@@ -150,9 +150,9 @@ async function moreActors() {
         const i = actorsToFilter.findIndex(a => a === actor);
         const picture = await fetchPersonPicture(actor);
         return `
-          <div class="element flex-column" id="${selector}" onclick="actorSelected('${selector}')">
+          <div class="element flex-column" id="${selector}" onclick="actorSelectedForSerie('${selector}')">
             ${picture ? `<img src="${picture}" alt="actor">` : ''}
-            <span class="${selector} ${i !== -1 ? 'element-selected' : ''} margin-auto">${actor}</span>
+            <span class="${selector} ${i !== -1 ? 'element-selected' : ''}">${actor}</span>
           </div>
         `
       }
@@ -175,7 +175,7 @@ async function moreDirectors() {
         return `
           <div class="element flex-column">
             ${picture ? `<img src= "${picture}" alt = "director" >` : ''}
-            <span class="${selector} ${i !== -1 ? 'element-selected' : ''} margin-auto">${director}</span>
+            <span class="${selector} ${i !== -1 ? 'element-selected' : ''}">${director}</span>
           </div>
         `
       }
@@ -219,10 +219,10 @@ export function genreSelected(checkbox: HTMLInputElement) {
   } else {
     genresToFilter.splice(genresToFilter.findIndex(g => g === checkbox.value), 1);
   }
-  fetchFilms(0);
+  fetchSeries(0);
 }
 
-export function actorSelected(actor: string) {
+export function actorSelectedForSerie(actor: string) {
   const indexActor = allActors.map(a => a.replace(/\s+/g, '')).findIndex(a => a === actor);
   const element = document.querySelector(`.${actor}`) as HTMLInputElement;
   const actorChecked = actorsToFilter.map(a => a.replace(/\s+/g, '')).includes(actor);
@@ -233,10 +233,10 @@ export function actorSelected(actor: string) {
     element.classList.add(`${filterMode === "exclusion" ? 'exclude' : 'include'}`)
     actorsToFilter.push(allActors[indexActor]);
   }
-  fetchFilms(0);
+  fetchSeries(0);
 }
 
-export function directorSelected(director: string) {
+export function directorSelectedForSerie(director: string) {
   const indexDirector = allDirectors.map(d => d.replace(/\s+/g, '')).findIndex(d => d === director);
   const element = document.querySelector(`.${director}`) as HTMLInputElement;
   const actorChecked = directorsToFilter.map(a => a.replace(/\s+/g, '')).includes(director);
@@ -247,62 +247,62 @@ export function directorSelected(director: string) {
     element.classList.add(`${filterMode === "exclusion" ? 'exclude' : 'include'}`)
     directorsToFilter.push(allDirectors[indexDirector]);
   }
-  fetchFilms(0);
+  fetchSeries(0);
 }
 
-export async function selectMovie(id: string): Promise<void> {
-  let movie = allMovies.find(movie => movie.id === parseInt(id));
-  if (!movie)  movie = searchMovieInGlobal(id);
-  const popup = document.querySelector('.film-popup') as HTMLElement;
-  const emptyCov = movie?.covPortrait.indexOf('empty');
+export async function selectSerie(id: string): Promise<void> {
+  let serie = allSeries.find(serie => serie.id === parseInt(id));
+  if (!serie)  serie = searchSerieInGlobal(id);
+  const popup = document.querySelector('.serie-popup') as HTMLElement;
+  const emptyCov = serie?.covPortrait.indexOf('empty');
   popup!.innerHTML = `
     <div class="flex header">
-      <h2 class="film-title">${movie?.titre}</h2>
-      <div class="cross" onClick="closePopup()">X</div>
+      <h2 class="serie-title">${serie?.titre}</h2>
+      <div class="cross" onClick="closePopupSerie()">X</div>
     </div>
     <div class="flex infos">
       <div class="flex-column">
-        <h4>Genres : ${movie?.genre}</h4>
-        <h4>Casting : ${movie?.casting}</h4>
-        <h4>Réalisateur: ${movie?.realisateur}</h4>
-        <h4>Durée: ${movie?.time}</h4>
-        <h4>Année: ${movie?.year}</h4>
+        <h4>Genres : ${serie?.genre}</h4>
+        <h4>Casting : ${serie?.casting}</h4>
+        <h4>Réalisateur: ${serie?.realisateur}</h4>
+        <h4>Episodes: ${serie?.episodes}</h4>
+        <h4>Saisons: ${serie?.seasons}</h4>
+        <h4>${serie?.year}</h4>
       </div>
-      ${emptyCov === -1 ? `<img src="${movie?.covPortrait}" alt="cov" >` : ''}
+      ${emptyCov === -1 ? `<img src="${serie?.covPortrait}" alt="cov" >` : ''}
     </div>
-    ${movie?.synopsis ? `<p>${movie?.synopsis} </p>` : ''}
+    ${serie?.synopsis ? `<p>${serie?.synopsis} </p>` : ''}
     <div class="flex notes">
-      ${movie?.alloGrade ? `<span>Note allociné: ${ movie?.alloGrade }/5</span >` : ''}
-      ${movie?.imdbGrade ? `<span>Note Imdb: ${movie.imdbGrade}/10</span>` : ''}
+      ${serie?.alloGrade ? `<span>Note allociné: ${ serie?.alloGrade }/5</span >` : ''}
     </div>
   `;
   popup.style.display = 'block';
 }
 
-export function closePopup() {
-  const popup = document.querySelector('.film-popup') as HTMLElement;
+export function closePopupSerie() {
+  const popup = document.querySelector('.serie-popup') as HTMLElement;
   popup.style.display = 'none';
 }
 
 async function fetchActors() {
-  const result = await fetch(`${API_URL}/movies/acteurs`);
+  const result = await fetch(`${API_URL}/series/acteurs`);
   const content = await result.json();
   allActors = content;
 }
 
 async function fetchDirectors() {
-  const result = await fetch(`${API_URL}/movies/realisateurs`);
+  const result = await fetch(`${API_URL}/series/realisateurs`);
   const content = await result.json();
   allDirectors = content;
 }
 
 export async function navigate(direction: string, page: number) {
-  fetchFilms(page, direction);
+  fetchSeries(page, direction);
 }
 
-async function fetchFilms(page: number, direction?: string): Promise<void> {
-  if (direction) caroussels.replaceChild(direction === 'right' ? loaderRight : loaderLeft, caroussels.children[direction === 'right' ? 2 : 0]);
-  const result = await fetch(`${API_URL}/movies/${filterMode === "exclusion" ? 'exclusions' : 'inclusions'}/${page}`, {
+async function fetchSeries(page: number, direction?: string): Promise<void> {
+  if (direction) carouselSerie.replaceChild(direction === 'right' ? loaderRight : loaderLeft, carouselSerie.children[direction === 'right' ? 2 : 0]);
+  const result = await fetch(`${API_URL}/series/${filterMode === "exclusion" ? 'exclusions' : 'inclusions'}/${page}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -314,7 +314,7 @@ async function fetchFilms(page: number, direction?: string): Promise<void> {
     })
   });
   const content = await result.json();
-  const movies: Array<Movie> = content.content;
+  const series: Array<Serie> = content.content;
   arrowRight.onclick = async () => {
     await navigate('right', page + 1);
   };
@@ -327,41 +327,41 @@ async function fetchFilms(page: number, direction?: string): Promise<void> {
     arrowLeft.onclick = null;
     if(!arrowLeft.classList.contains('arrow-invisible')) arrowLeft?.classList.add('arrow-invisible')
   }
-  fillLine(movies.slice(0, 8), 1, direction)
-  fillLine(movies.slice(8, 16), 2, direction)
-  fillLine(movies.slice(16), 3, direction)
-  if (direction) caroussels.replaceChild(direction === 'right' ? arrowRight : arrowLeft, caroussels.children[direction === 'right' ? 2 : 0]);
+  fillLine(series.slice(0, 8), 1, direction)
+  fillLine(series.slice(8, 16), 2, direction)
+  fillLine(series.slice(16), 3, direction)
+  if (direction) carouselSerie.replaceChild(direction === 'right' ? arrowRight : arrowLeft, carouselSerie.children[direction === 'right' ? 2 : 0]);
 }
 
 
-function fillLine(movies: Array<Movie>, line: number, direction?: string) {
+function fillLine(series: Array<Serie>, line: number, direction?: string) {
   let html = '';
-  movies.forEach(
-    movie => {
-      if (allMovies.findIndex(m => m.id === movie.id) === -1) {
-        allMovies.push(movie);
+  series.forEach(
+    serie => {
+      if (allSeries.findIndex(m => m.id === serie.id) === -1) {
+        allSeries.push(serie);
       }
-      const emptyCov = movie.covPortrait.indexOf('empty');
+      const emptyCov = serie.covPortrait.indexOf('empty');
       html += `
-        ${emptyCov === -1 ? `<img class="img-movie" src="${movie.covPortrait}" alt="${movie.titre}" onclick="selectMovie(${movie.id})" >`
-          : `<span class="titre-no-cov" onclick="selectMovie(${movie.id})">${movie.titre}</span>`}
+        ${emptyCov === -1 ? `<img class="img-serie" src="${serie.covPortrait}" alt="${serie.titre}" onclick="selectSerie(${serie.id})" >`
+          : `<span class="titre-no-cov" onclick="selectSerie(${serie.id})">${serie.titre}</span>`}
       `;
     }
   );
   if (direction) {
     slide(direction, line, html);
   } else {
-    const slide = document.querySelector(`.films_${line}`);
+    const slide = document.querySelector(`.series_${line}`);
     slide!.innerHTML = html;
   }
 }
 
 function slide(direction: string, line: number, content: string) {
-  const container = document.querySelector('.lines');
+  const container = document.querySelector('.lines-series');
   const newSlide = document.createElement('div');
-  newSlide.classList.add('flex', `films_${line}`, `enter-${direction}`);
+  newSlide.classList.add('flex', `series_${line}`, `enter-${direction}`);
   newSlide.innerHTML = content;
-  const oldSlide = document!.querySelector(`.films_${line}`);
+  const oldSlide = document!.querySelector(`.series_${line}`);
   oldSlide!.classList.add(`leave-${direction === 'right' ? 'left' : 'right'}`);
 
   oldSlide!.addEventListener('animationend', () => {
@@ -371,13 +371,13 @@ function slide(direction: string, line: number, content: string) {
   updateTopPositions();
 }
 
-window.closePopup = closePopup;
-window.selectMovie = selectMovie;
-window.switchFilmsTabFilters = switchFilmsTabFilters;
+window.closePopupSerie = closePopupSerie;
+window.selectSerie = selectSerie;
+window.switchSeriesTabFilters = switchSeriesTabFilters;
 window.navigate = navigate;
 window.genreSelected = genreSelected;
-window.directorSelected = directorSelected;
-window.actorSelected = actorSelected;
+window.directorSelectedForSerie = directorSelectedForSerie;
+window.actorSelectedForSerie = actorSelectedForSerie;
 window.actorChange = actorChange;
 window.directorChange = directorChange;
 window.switchMode = switchMode;
@@ -387,12 +387,12 @@ window.moreDirectors = moreDirectors;
 function updateTopPositions() {
   const viewportWidth = window.innerWidth;
 
-  const films2 = document.querySelector('.films_2') as HTMLElement;
-  const films3 = document.querySelector('.films_3') as HTMLElement;
+  const series2 = document.querySelector('.series_2') as HTMLElement;
+  const series3 = document.querySelector('.series_3') as HTMLElement;
 
-  if (films2 && films3) {
-      films2.style.top = `${viewportWidth * 0.12}px`;
-      films3.style.top = `${viewportWidth * 0.25}px`;
+  if (series2 && series3) {
+      series2.style.top = `${viewportWidth * 0.12}px`;
+      series3.style.top = `${viewportWidth * 0.25}px`;
   }
 }
 

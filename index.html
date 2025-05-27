@@ -5,14 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="styles.css">
         <link rel="stylesheet" href="films/films.css">
+        <link rel="stylesheet" href="series/series.css">
         <script src="https://kit.fontawesome.com/019add8368.js" crossorigin="anonymous"></script>
         <title>Exclusio</title>
     </head>
     <body>
         <header class="flex main-header">
             <h2 class="title-site">Exclusio</h2>
-            <p class="main-header-tab" onclick="handleRedirect('films')">Films</p>
-            <p class="main-header-tab" onclick="handleRedirect('series')">Series</p>
+            <p class="main-header-tab films-header" onclick="handleRedirect('films')">Films</p>
+            <p class="main-header-tab series-header" onclick="handleRedirect('series')">Series</p>
             <div class="main-header-tab" id="global-search">
                 <input placeholder="Recherche" type="text" class="globalSearch" oninput="globalSearch()"/>
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -169,10 +170,21 @@
             <div class="film-popup"></div>
         </div>
         <div class="series">
-            <h1>Series</h1>
+            <h4 class="selection_series">Sélection de séries</h4>
+            <div class="flex carousels">
+                <span class="fa fa-2x fa-arrow-circle-left arrow-left-serie arrow-invisible"></span>
+                <div class="lines-series flex-column">
+                    <div class="flex series_1"></div>
+                    <div class="flex series_2"></div>
+                    <div class="flex series_3"></div>
+                </div>
+                <span class="fa fa-2x fa-arrow-circle-right arrow-right-serie"></span>
+            </div>
+            <div class="serie-popup"></div>
         </div>
         <script type="module" src="dist/index.js"></script>
         <script type="module" src="dist/routes.js"></script>
         <script type="module" src="dist/films/films.js"></script>
+        <script type="module" src="dist/series/series.js"></script>
     </body>
 </html>

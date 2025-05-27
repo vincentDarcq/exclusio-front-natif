@@ -36,7 +36,13 @@ h3 {
     padding-top: 10px;
     margin: 5px 0;
 }
-
+.active-head, .active{
+    background-color: rgba(0, 0, 0, 0.3);
+}
+.active {
+    cursor: pointer;
+    padding: 10px;
+}
 .identifier {
     margin-left: auto;
 }
@@ -110,6 +116,35 @@ h3 {
     animation: rotate 1s infinite;
 }
 
+.titre-no-cov {
+    cursor: pointer;
+    flex: 1 1 0;
+    object-fit: cover;
+    min-width: 0;
+    border: solid 1px #FFFF;
+    border-radius: 5px;
+}
+
+.carousels {
+    position: relative;
+    width: 80vw;
+    margin: 10px 200px;
+}
+
+.fa-arrow-circle-right, .spinner-carrousel-right {
+    position: absolute;
+    top: 28vh;
+    right: 50px;
+    cursor: pointer;
+}
+
+.fa-arrow-circle-left, .spinner-carrousel-left {
+    position: absolute;
+    top: 28vh;
+    left: -60px;
+    cursor: pointer;
+}
+
 @keyframes rotate {
     from {
         transform: rotate(0);
@@ -117,4 +152,24 @@ h3 {
     to {
         transform: rotate(360deg);
     }
+}
+
+@keyframes enterFromRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+  
+@keyframes enterFromLeft {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes leaveToLeft {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(-100%); opacity: 0; }
+}
+
+@keyframes leaveToRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
 }

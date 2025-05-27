@@ -19,6 +19,10 @@ else {
 }
 export let globalSearchList = [];
 const searchElement = document.getElementById('global-search');
+export const loaderRight = document.createElement('i');
+loaderRight.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto', 'spinner-carrousel-right');
+export const loaderLeft = document.createElement('i');
+loaderLeft.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto', 'spinner-carrousel-left');
 document.querySelector('.globalSearch').addEventListener('focus', () => {
     if (globalSearchList.length > 0)
         fillGlobalResults();
@@ -29,10 +33,12 @@ export function handleRedirect(url) {
         const page = document.querySelector(`.${route.class}`);
         if (route.class !== url) {
             page.style.display = "none";
+            removeActiveClass(route.class);
         }
         else {
             routeFound = true;
             page.style.display = "block";
+            addActiveClass(route.class);
             history.pushState({}, '', `${baseUrl}/${route.class}`);
         }
     });
@@ -40,8 +46,17 @@ export function handleRedirect(url) {
         const route = routes.find(r => r.path === '**');
         const page = document.querySelector(`.${route.class}`);
         page.style.display = "block";
+        addActiveClass(route.class);
         history.pushState({}, '', baseUrl);
     }
+}
+function removeActiveClass(route) {
+    const element = document.querySelector(`.${route}-header`);
+    element.classList.remove('active-head');
+}
+function addActiveClass(route) {
+    const element = document.querySelector(`.${route}-header`);
+    element.classList.add('active-head');
 }
 function search() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -91,6 +106,9 @@ export function removeGlobalResult() {
 }
 export function searchMovieInGlobal(id) {
     return globalSearchList.find(movie => movie.id === parseInt(id));
+}
+export function searchSerieInGlobal(id) {
+    return globalSearchList.find(serie => serie.id === parseInt(id));
 }
 window.handleRedirect = handleRedirect;
 window.globalSearch = globalSearch;
