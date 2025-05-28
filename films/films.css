@@ -36,9 +36,40 @@
     overflow: auto;
     .element{
         margin: 10px;
+        padding: 1px;
         cursor: pointer;
-        border: solid 1px #FFFF;
+        border: solid 2px #828282;
         border-radius: 10px;
+        img {
+            border-radius: 10px;
+        }
+    }
+}
+
+.genres, .directors, .actors{
+    padding: 10px;
+    margin: auto;
+    height: 110px;
+    width: 80vw;
+    border: solid 2px rgba(0, 0, 0, 0.3);
+    justify-content: center;
+    img {
+        width: 100px;
+    }
+}
+
+.directors, .actors {
+    height: 400px;
+    overflow: auto;
+    .element{
+        margin: 10px;
+        padding: 1px;
+        cursor: pointer;
+        border: solid 2px #828282;
+        border-radius: 10px;
+        img {
+            border-radius: 10px;
+        }
     }
 }
 
@@ -48,18 +79,6 @@
 
 .films-filters .directors .element, .films-filters .actors .element {
     width: 100px;
-}
-
-
-.films-filters .exclude {
-    text-decoration: line-through;
-    text-decoration-thickness: 2px;
-    text-decoration-color: black;
-}
-
-.films-filters .include {
-    background-color: #FFFF;
-    color: black;
 }
 
 .films-filters input[type=checkbox] {
@@ -98,20 +117,6 @@
 .directors input, .actors input {
     padding: 8px;
 }
-
-.filter-mode {
-    border: solid .8px #FFFF;
-    border-radius: 10px;
-    background-color: #28226e;
-    color: #FFFF;
-    padding: 5px;
-    margin: 5px;
-    cursor: pointer;
-}
-.filter-mode:hover{
-    background-color: #4a4675;
-}
-
 .selection_films{
     width:70vw;
     margin: 25px auto;

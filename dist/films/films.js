@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { debounce, loaderLeft, loaderRight, searchMovieInGlobal } from "../index.js";
+import { debounce, disableArrow, enableArrow, loaderLeft, loaderRight, searchMovieInGlobal } from "../index.js";
 export const API_URL = 'http://localhost:8080';
 let allMovies = [];
 let allActors = [];
@@ -23,8 +23,10 @@ let actorsElements = document.querySelector('.actors');
 const caroussels = document.querySelector('.carousels');
 const loader = document.createElement('i');
 loader.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto');
-const arrowDown = document.createElement('span');
-arrowDown.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
+const arrowDownFilmActor = document.createElement('span');
+arrowDownFilmActor.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
+const arrowDownFilmReal = document.createElement('span');
+arrowDownFilmReal.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
 const arrowLeft = document.querySelector('.fa-arrow-circle-left');
 const arrowRight = document.querySelector('.fa-arrow-circle-right');
 switchFilmsTabFilters('genres');
@@ -71,8 +73,8 @@ function fillFilters(tab, element, elementsSearched) {
                 html = yield Promise.all(elementsSearched ?
                     elementsSearched.filter(a => !actorsToFilter.includes(a)).slice(0, 27).map((actor) => __awaiter(this, void 0, void 0, function* () { return getPersonElement('actor', actor); })) : allActors.filter(a => !actorsToFilter.includes(a)).slice(0, 27).map((actor) => __awaiter(this, void 0, void 0, function* () { return getPersonElement('actor', actor); })));
                 element.innerHTML = `${actorFiltered.join('')}${html.join('')}`;
-                arrowDown.onclick = moreActors;
-                actorsElements.replaceChild(arrowDown, actorsElements.children[2]);
+                arrowDownFilmActor.onclick = moreActors;
+                actorsElements.replaceChild(arrowDownFilmActor, actorsElements.children[2]);
                 break;
             case 'directors':
                 directorsElements.replaceChild(loader, directorsElements.children[2]);
@@ -80,8 +82,8 @@ function fillFilters(tab, element, elementsSearched) {
                 html = yield Promise.all(elementsSearched ?
                     elementsSearched.filter(d => !directorsToFilter.includes(d)).slice(0, 27).map((director) => __awaiter(this, void 0, void 0, function* () { return getPersonElement('director', director); })) : allDirectors.filter(d => !directorsToFilter.includes(d)).slice(0, 27).map((director) => __awaiter(this, void 0, void 0, function* () { return getPersonElement('director', director); })));
                 element.innerHTML = `${directorFiltered.join('')}${html.join('')}`;
-                arrowDown.onclick = moreDirectors;
-                directorsElements.replaceChild(arrowDown, directorsElements.children[2]);
+                arrowDownFilmReal.onclick = moreDirectors;
+                directorsElements.replaceChild(arrowDownFilmReal, directorsElements.children[2]);
         }
     });
 }
@@ -118,14 +120,18 @@ function moreActors() {
             const i = actorsToFilter.findIndex(a => a === actor);
             const picture = yield fetchPersonPicture(actor);
             return `
-          <div class="element flex-column" id="${selector}" onclick="actorSelected('${selector}')">
+          <div class="
+              ${selector}
+              element flex-column"
+            onclick="actorSelected('${selector}')"
+          >
             ${picture ? `<img src="${picture}" alt="actor">` : ''}
-            <span class="${selector} ${i !== -1 ? 'element-selected' : ''} margin-auto">${actor}</span>
+            <span class="${i !== -1 ? 'element-selected' : ''} margin-auto">${actor}</span>
           </div>
         `;
         })));
         actors.innerHTML = `${actors.innerHTML}${html.join('')}`;
-        actorsElements.replaceChild(arrowDown, actorsElements.children[2]);
+        actorsElements.replaceChild(arrowDownFilmActor, actorsElements.children[2]);
     });
 }
 function moreDirectors() {
@@ -138,14 +144,18 @@ function moreDirectors() {
             const i = directorsToFilter.findIndex(a => a === director);
             const picture = yield fetchPersonPicture(director);
             return `
-          <div class="element flex-column">
+          <div class="
+              ${selector}
+              element flex-column"
+            onclick="directorSelected('${selector}')"
+          >
             ${picture ? `<img src= "${picture}" alt = "director" >` : ''}
-            <span class="${selector} ${i !== -1 ? 'element-selected' : ''} margin-auto">${director}</span>
+            <span class=" ${i !== -1 ? 'element-selected' : ''} margin-auto">${director}</span>
           </div>
         `;
         })));
         actors.innerHTML = `${actors.innerHTML}${html.join('')}`;
-        directorsElements.replaceChild(arrowDown, directorsElements.children[2]);
+        directorsElements.replaceChild(arrowDownFilmReal, directorsElements.children[2]);
     });
 }
 function fetchPersonPicture(person) {
@@ -287,19 +297,21 @@ function fetchFilms(page, direction) {
         });
         const content = yield result.json();
         const movies = content.content;
-        arrowRight.onclick = () => __awaiter(this, void 0, void 0, function* () {
-            yield navigate('right', page + 1);
-        });
-        if (page > 0) {
-            arrowLeft.classList.remove('arrow-invisible');
-            arrowLeft.onclick = () => __awaiter(this, void 0, void 0, function* () {
-                yield navigate('left', page - 1);
-            });
+        if (content.last) {
+            disableArrow(arrowRight);
         }
         else {
-            arrowLeft.onclick = null;
-            if (!arrowLeft.classList.contains('arrow-invisible'))
-                arrowLeft === null || arrowLeft === void 0 ? void 0 : arrowLeft.classList.add('arrow-invisible');
+            enableArrow(arrowRight, () => __awaiter(this, void 0, void 0, function* () {
+                yield navigate('right', page + 1);
+            }));
+        }
+        if (page > 0) {
+            enableArrow(arrowLeft, () => __awaiter(this, void 0, void 0, function* () {
+                yield navigate('left', page - 1);
+            }));
+        }
+        else {
+            disableArrow(arrowLeft);
         }
         fillLine(movies.slice(0, 8), 1, direction);
         fillLine(movies.slice(8, 16), 2, direction);

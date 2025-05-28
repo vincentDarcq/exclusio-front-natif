@@ -121,3 +121,11 @@ export function debounce(func, timeout = 800) {
         }, timeout);
     };
 }
+export const disableArrow = (arrow) => {
+    arrow.onclick = null;
+    arrow.classList.add('arrow-invisible');
+};
+export const enableArrow = (arrow, handler) => {
+    arrow.onclick = handler;
+    arrow.classList.remove('arrow-invisible');
+};

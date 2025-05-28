@@ -129,3 +129,14 @@ export function debounce<T extends (...args: any[]) => void>(
     }, timeout);
   };
 }
+
+
+export const disableArrow = (arrow: HTMLElement) => {
+  arrow.onclick = null;
+  arrow.classList.add('arrow-invisible');
+};
+
+export const enableArrow = (arrow: HTMLElement, handler: () => Promise<void>) => {
+  arrow.onclick = handler;
+  arrow.classList.remove('arrow-invisible');
+};

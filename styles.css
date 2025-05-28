@@ -112,9 +112,34 @@ h3 {
     padding-top: 5px;
 }
 
+.exclude {
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    text-decoration-color: black;
+}
+
+.include {
+    background-color: #FFFF;
+    color: black;
+}
+
 .spinner {
     animation: rotate 1s infinite;
 }
+
+.filter-mode, .filter-mode-serie {
+    border: solid .8px #FFFF;
+    border-radius: 10px;
+    background-color: #28226e;
+    color: #FFFF;
+    padding: 5px;
+    margin: 5px;
+    cursor: pointer;
+}
+.filter-mode:hover{
+    background-color: #4a4675;
+}
+
 
 .titre-no-cov {
     cursor: pointer;
@@ -133,14 +158,14 @@ h3 {
 
 .fa-arrow-circle-right, .spinner-carrousel-right {
     position: absolute;
-    top: 28vh;
+    top: 33vh;
     right: 50px;
     cursor: pointer;
 }
 
 .fa-arrow-circle-left, .spinner-carrousel-left {
     position: absolute;
-    top: 28vh;
+    top: 33vh;
     left: -60px;
     cursor: pointer;
 }

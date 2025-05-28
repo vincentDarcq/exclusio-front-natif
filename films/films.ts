@@ -1,4 +1,5 @@
-import { debounce, loaderLeft, loaderRight, searchMovieInGlobal } from "../index.js";
+import { debounce, disableArrow, enableArrow, loaderLeft, loaderRight, searchMovieInGlobal } from "../index.js";
+import { PageResult } from "../page_result.js";
 import { Movie } from "./movie_type.js";
 
 declare global {
@@ -34,8 +35,10 @@ const caroussels = document.querySelector('.carousels') as HTMLElement;
 const loader = document.createElement('i');
 loader.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto');
 
-const arrowDown = document.createElement('span');
-arrowDown.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
+const arrowDownFilmActor = document.createElement('span');
+arrowDownFilmActor.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
+const arrowDownFilmReal = document.createElement('span');
+arrowDownFilmReal.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
 const arrowLeft = document.querySelector('.fa-arrow-circle-left') as HTMLElement;
 const arrowRight = document.querySelector('.fa-arrow-circle-right') as HTMLElement;
   
@@ -94,8 +97,8 @@ async function fillFilters(tab: string, element: HTMLElement, elementsSearched?:
           )
       )
       element.innerHTML = `${actorFiltered.join('')}${html.join('')}`;
-      arrowDown.onclick = moreActors;
-      actorsElements.replaceChild(arrowDown, actorsElements.children[2]);
+      arrowDownFilmActor.onclick = moreActors;
+      actorsElements.replaceChild(arrowDownFilmActor, actorsElements.children[2]);
       break;
     case 'directors':
       directorsElements.replaceChild(loader, directorsElements.children[2]);
@@ -113,8 +116,8 @@ async function fillFilters(tab: string, element: HTMLElement, elementsSearched?:
           )
       )
       element.innerHTML = `${directorFiltered.join('')}${html.join('')}`;
-      arrowDown.onclick = moreDirectors;
-      directorsElements.replaceChild(arrowDown, directorsElements.children[2]);
+      arrowDownFilmReal.onclick = moreDirectors;
+      directorsElements.replaceChild(arrowDownFilmReal, directorsElements.children[2]);
   }  
 }
 
@@ -150,16 +153,20 @@ async function moreActors() {
         const i = actorsToFilter.findIndex(a => a === actor);
         const picture = await fetchPersonPicture(actor);
         return `
-          <div class="element flex-column" id="${selector}" onclick="actorSelected('${selector}')">
+          <div class="
+              ${selector}
+              element flex-column"
+            onclick="actorSelected('${selector}')"
+          >
             ${picture ? `<img src="${picture}" alt="actor">` : ''}
-            <span class="${selector} ${i !== -1 ? 'element-selected' : ''} margin-auto">${actor}</span>
+            <span class="${i !== -1 ? 'element-selected' : ''} margin-auto">${actor}</span>
           </div>
         `
       }
     )
   )
   actors.innerHTML = `${actors.innerHTML}${html.join('')}`;
-  actorsElements.replaceChild(arrowDown, actorsElements.children[2]);
+  actorsElements.replaceChild(arrowDownFilmActor, actorsElements.children[2]);
 }
 
 async function moreDirectors() {
@@ -173,16 +180,20 @@ async function moreDirectors() {
         const i = directorsToFilter.findIndex(a => a === director);
         const picture = await fetchPersonPicture(director);
         return `
-          <div class="element flex-column">
+          <div class="
+              ${selector}
+              element flex-column"
+            onclick="directorSelected('${selector}')"
+          >
             ${picture ? `<img src= "${picture}" alt = "director" >` : ''}
-            <span class="${selector} ${i !== -1 ? 'element-selected' : ''} margin-auto">${director}</span>
+            <span class=" ${i !== -1 ? 'element-selected' : ''} margin-auto">${director}</span>
           </div>
         `
       }
     )
   )
   actors.innerHTML = `${actors.innerHTML}${html.join('')}`;
-  directorsElements.replaceChild(arrowDown, directorsElements.children[2]);
+  directorsElements.replaceChild(arrowDownFilmReal, directorsElements.children[2]);
 }
 
 async function fetchPersonPicture(person: string) {
@@ -313,20 +324,22 @@ async function fetchFilms(page: number, direction?: string): Promise<void> {
       realisateurs: directorsToFilter
     })
   });
-  const content = await result.json();
+  const content: PageResult = await result.json();
   const movies: Array<Movie> = content.content;
-  arrowRight.onclick = async () => {
-    await navigate('right', page + 1);
-  };
-  if (page > 0) {
-    arrowLeft.classList.remove('arrow-invisible');
-    arrowLeft.onclick = async () => {
-      await navigate('left', page - 1);
-    };
-  } else {
-    arrowLeft.onclick = null;
-    if(!arrowLeft.classList.contains('arrow-invisible')) arrowLeft?.classList.add('arrow-invisible')
-  }
+  if (content.last) {
+      disableArrow(arrowRight);
+    } else {
+      enableArrow(arrowRight, async () => {
+        await navigate('right', page + 1);
+      });
+    }
+    if (page > 0) {
+      enableArrow(arrowLeft, async () => {
+        await navigate('left', page - 1);
+      });
+    } else {
+      disableArrow(arrowLeft);
+    }
   fillLine(movies.slice(0, 8), 1, direction)
   fillLine(movies.slice(8, 16), 2, direction)
   fillLine(movies.slice(16), 3, direction)

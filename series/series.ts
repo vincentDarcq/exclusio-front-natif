@@ -1,4 +1,5 @@
-import { debounce, loaderLeft, loaderRight, searchSerieInGlobal } from "../index.js";
+import { debounce, disableArrow, enableArrow, loaderLeft, loaderRight, searchSerieInGlobal } from "../index.js";
+import { PageResult } from "../page_result.js";
 import { Serie } from "./serie_type.js";
 
 declare global {
@@ -10,9 +11,9 @@ declare global {
     genreSelectedForSerie: (checkbox: HTMLInputElement) => void;
     actorSelectedForSerie: (actor: string) => void;
     directorSelectedForSerie: (director: string) => void;
-    actorChange: () => void;
-    directorChange: () => void;
-    switchMode: () => void;
+    actorSerieChange: () => void;
+    directorSerieChange: () => void;
+    switchModeSerie: () => void;
     moreActors: () => void;
     moreDirectors: () => void;
   }
@@ -28,29 +29,31 @@ let directorsToFilter: Array<string> = [];
 let filterMode = "exclusion";
 let indexFilterActors = 0;
 let indexFilterDirectors = 0;
-let directorsElements = document.querySelector('.directors') as HTMLElement;
-let actorsElements = document.querySelector('.actors') as HTMLElement;
+let directorsElements = document.querySelector('.directors-series') as HTMLElement;
+let actorsElements = document.querySelector('.actors-series') as HTMLElement;
 const caroussels = document.querySelectorAll('.carousels');
 const carouselSerie = caroussels![1] as HTMLElement;
 const loader = document.createElement('i');
 loader.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto');
-const arrowDown = document.createElement('span');
-arrowDown.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
+const arrowDownActor = document.createElement('span');
+arrowDownActor.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
+const arrowDownReal = document.createElement('span');
+arrowDownReal.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
 const arrowLeft = document.querySelector('.arrow-left-serie') as HTMLElement;
 const arrowRight = document.querySelector('.arrow-right-serie') as HTMLElement;
   
 switchSeriesTabFilters('genres');
-// fetchActors();
-// fetchDirectors();
+fetchActorsSerie();
+fetchDirectorsSerie();
 fetchSeries(0);
 
-export function switchMode(){
+export function switchModeSerie(){
   filterMode = filterMode === "exclusion" ? "inclusion" : "exclusion";
-  const button = document.querySelector('.filter-mode') as HTMLElement;
+  const button = document.querySelector('.filter-mode-serie') as HTMLElement;
   button.innerHTML = `Passer en mode ${filterMode === "exclusion" ? "inclusion" : "exclusion"}`;
-  const genresTab = document.querySelector('.tab-genres') as HTMLElement;
-  const directorsTab = document.querySelector('.tab-directors') as HTMLElement;
-  const actorsTab = document.querySelector('.tab-actors') as HTMLElement;
+  const genresTab = document.querySelector('.tab-genres-series') as HTMLElement;
+  const directorsTab = document.querySelector('.tab-directors-series') as HTMLElement;
+  const actorsTab = document.querySelector('.tab-actors-series') as HTMLElement;
   const modeForTab = `${filterMode.charAt(0).toUpperCase()}${filterMode.substring(1)}`
   genresTab.innerHTML = `${modeForTab} des genres`;
   directorsTab.innerHTML = `${modeForTab} des réalisateurs`;
@@ -62,20 +65,20 @@ export async function switchSeriesTabFilters(tab: string): Promise<void> {
   indexFilterDirectors = 0;
   ['genres', 'directors', 'actors'].filter(t => t !== tab).forEach(
     tab => {
-      const tabEl = document.querySelector(`.tab-${tab}`) as HTMLElement;
+      const tabEl = document.querySelector(`.tab-${tab}-series`) as HTMLElement;
       tabEl.classList.remove('active');
-      const exclusionEl = document.querySelector(`.${tab}`) as HTMLElement;
+      const exclusionEl = document.querySelector(`.${tab}-series`) as HTMLElement;
       exclusionEl.style.display = 'none';
     }
   )
-  const exclusionsTab = document.querySelector(`.tab-${tab}`) as HTMLElement;
+  const exclusionsTab = document.querySelector(`.tab-${tab}-series`) as HTMLElement;
   exclusionsTab.classList.add('active');
-  const exclusions = document.querySelector(`.${tab}`) as HTMLElement;
+  const exclusions = document.querySelector(`.${tab}-series`) as HTMLElement;
   exclusions.style.display = 'flex';
-  if(tab !== 'genres')  await fillFilters(tab, document.querySelector(`.list-${tab}`) as HTMLElement);
+  if(tab !== 'genres')  await fillFiltersSeries(tab, document.querySelector(`.list-${tab}-series`) as HTMLElement);
 }
 
-async function fillFilters(tab: string, element: HTMLElement, elementsSearched?: Array<string>) {
+async function fillFiltersSeries(tab: string, element: HTMLElement, elementsSearched?: Array<string>) {
   let html;
   switch (tab) {
     case 'actors':
@@ -94,8 +97,8 @@ async function fillFilters(tab: string, element: HTMLElement, elementsSearched?:
           )
       )
       element.innerHTML = `${actorFiltered.join('')}${html.join('')}`;
-      arrowDown.onclick = moreActors;
-      actorsElements.replaceChild(arrowDown, actorsElements.children[2]);
+      arrowDownActor.onclick = moreActors;
+      actorsElements.replaceChild(arrowDownActor, actorsElements.children[2]);
       break;
     case 'directors':
       directorsElements.replaceChild(loader, directorsElements.children[2]);
@@ -113,8 +116,8 @@ async function fillFilters(tab: string, element: HTMLElement, elementsSearched?:
           )
       )
       element.innerHTML = `${directorFiltered.join('')}${html.join('')}`;
-      arrowDown.onclick = moreDirectors;
-      directorsElements.replaceChild(arrowDown, directorsElements.children[2]);
+      arrowDownReal.onclick = moreDirectors;
+      directorsElements.replaceChild(arrowDownReal, directorsElements.children[2]);
   }  
 }
 
@@ -159,7 +162,7 @@ async function moreActors() {
     )
   )
   actors.innerHTML = `${actors.innerHTML}${html.join('')}`;
-  actorsElements.replaceChild(arrowDown, actorsElements.children[2]);
+  actorsElements.replaceChild(arrowDownActor, actorsElements.children[2]);
 }
 
 async function moreDirectors() {
@@ -182,7 +185,7 @@ async function moreDirectors() {
     )
   )
   actors.innerHTML = `${actors.innerHTML}${html.join('')}`;
-  directorsElements.replaceChild(arrowDown, directorsElements.children[2]);
+  directorsElements.replaceChild(arrowDownReal, directorsElements.children[2]);
 }
 
 async function fetchPersonPicture(person: string) {
@@ -195,20 +198,20 @@ async function fetchPersonPicture(person: string) {
 async function searchActor() {
   const input = document.querySelector('input.searchActor') as HTMLInputElement;
   const actors = allActors.filter(actor => actor.toLowerCase().includes(input.value.toLowerCase()));
-  await fillFilters('actors', document.querySelector('.list-actors') as HTMLElement, actors)
+  await fillFiltersSeries('actors', document.querySelector('.list-actors') as HTMLElement, actors)
 }
 
 async function searchDirector() {
   const input = document.querySelector('input.searchDirector') as HTMLInputElement;
   const directors = allDirectors.filter(director => director.toLowerCase().includes(input.value.toLowerCase()));
-  await fillFilters('directors', document.querySelector('.list-directors') as HTMLElement, directors)
+  await fillFiltersSeries('directors', document.querySelector('.list-directors') as HTMLElement, directors)
 }
 
-export const actorChange = debounce(() => searchActor());
-export const directorChange = debounce(() => searchDirector());
+export const actorSerieChange = debounce(() => searchActor());
+export const directorSerieChange = debounce(() => searchDirector());
 
 export function genreSelected(checkbox: HTMLInputElement) {
-  const element = document.querySelector(`.${checkbox.value}`) as HTMLInputElement;
+  const element = document.querySelector(`.serie-${checkbox.value}`) as HTMLInputElement;
   if (checkbox.checked) {
     element.classList.add(`${filterMode === "exclusion" ? 'exclude' : 'include'}`)
   } else {
@@ -284,13 +287,13 @@ export function closePopupSerie() {
   popup.style.display = 'none';
 }
 
-async function fetchActors() {
+async function fetchActorsSerie() {
   const result = await fetch(`${API_URL}/series/acteurs`);
   const content = await result.json();
   allActors = content;
 }
 
-async function fetchDirectors() {
+async function fetchDirectorsSerie() {
   const result = await fetch(`${API_URL}/series/realisateurs`);
   const content = await result.json();
   allDirectors = content;
@@ -313,25 +316,28 @@ async function fetchSeries(page: number, direction?: string): Promise<void> {
       realisateurs: directorsToFilter
     })
   });
-  const content = await result.json();
+  const content: PageResult = await result.json();
   const series: Array<Serie> = content.content;
-  arrowRight.onclick = async () => {
-    await navigate('right', page + 1);
-  };
-  if (page > 0) {
-    arrowLeft.classList.remove('arrow-invisible');
-    arrowLeft.onclick = async () => {
-      await navigate('left', page - 1);
-    };
+  if (content.last) {
+    disableArrow(arrowRight);
   } else {
-    arrowLeft.onclick = null;
-    if(!arrowLeft.classList.contains('arrow-invisible')) arrowLeft?.classList.add('arrow-invisible')
+    enableArrow(arrowRight, async () => {
+      await navigate('right', page + 1);
+    });
+  }
+  if (page > 0) {
+    enableArrow(arrowLeft, async () => {
+      await navigate('left', page - 1);
+    });
+  } else {
+    disableArrow(arrowLeft);
   }
   fillLine(series.slice(0, 8), 1, direction)
   fillLine(series.slice(8, 16), 2, direction)
   fillLine(series.slice(16), 3, direction)
   if (direction) carouselSerie.replaceChild(direction === 'right' ? arrowRight : arrowLeft, carouselSerie.children[direction === 'right' ? 2 : 0]);
 }
+
 
 
 function fillLine(series: Array<Serie>, line: number, direction?: string) {
@@ -378,9 +384,9 @@ window.navigate = navigate;
 window.genreSelected = genreSelected;
 window.directorSelectedForSerie = directorSelectedForSerie;
 window.actorSelectedForSerie = actorSelectedForSerie;
-window.actorChange = actorChange;
-window.directorChange = directorChange;
-window.switchMode = switchMode;
+window.actorSerieChange = actorSerieChange;
+window.directorSerieChange = directorSerieChange;
+window.switchModeSerie = switchModeSerie;
 window.moreActors = moreActors;
 window.moreDirectors = moreDirectors;
 

@@ -1,3 +1,79 @@
+.series-filters p {
+    margin: 0;
+}
+
+.series-filters .serie-header-tab{
+    cursor: pointer;
+    padding: 10px;
+}
+.series-filters .series-filters-tabs{
+    width: fit-content;
+    margin: auto;
+    gap: 20px;
+}
+
+.genres-series, .directors-series, .actors-series{
+    padding: 10px;
+    margin: auto;
+    height: 110px;
+    width: 80vw;
+    border: solid 2px rgba(0, 0, 0, 0.3);
+    justify-content: center;
+    img {
+        width: 100px;
+    }
+}
+
+.directors-series, .actors-series {
+    height: 400px;
+    overflow: auto;
+    .element{
+        margin: 10px;
+        padding: 1px;
+        cursor: pointer;
+        border: solid 2px #828282;
+        border-radius: 10px;
+        img {
+            border-radius: 10px;
+        }
+    }
+}
+.series-filters .element {
+    width: 180px;
+}
+
+.series-filters .flex-column{
+    justify-content: start;
+}
+
+.series-filters input {
+    width: fit-content;
+    margin: 0 auto;
+    border-radius: 10px;
+    border: none;
+}
+
+.directors-series input, .actors-series input {
+    padding: 8px;
+}
+
+.series-filters .directors-series .element, .series-filters .actors-series .element {
+    width: 100px;
+}
+
+.series-filters input[type=checkbox] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    border-radius: 4px;
+    height: 13px;
+    width: 13px;
+    margin: 0;
+    background: transparent;
+    border: 2px solid #ccc;
+    cursor: pointer;
+}
 .selection_series{
     width:70vw;
     margin: 25px auto;

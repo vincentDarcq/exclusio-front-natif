@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { debounce, loaderLeft, loaderRight, searchSerieInGlobal } from "../index.js";
+import { debounce, disableArrow, enableArrow, loaderLeft, loaderRight, searchSerieInGlobal } from "../index.js";
 export const API_URL = 'http://localhost:8080';
 let allSeries = [];
 let allActors = [];
@@ -18,27 +18,29 @@ let directorsToFilter = [];
 let filterMode = "exclusion";
 let indexFilterActors = 0;
 let indexFilterDirectors = 0;
-let directorsElements = document.querySelector('.directors');
-let actorsElements = document.querySelector('.actors');
+let directorsElements = document.querySelector('.directors-series');
+let actorsElements = document.querySelector('.actors-series');
 const caroussels = document.querySelectorAll('.carousels');
 const carouselSerie = caroussels[1];
 const loader = document.createElement('i');
 loader.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto');
-const arrowDown = document.createElement('span');
-arrowDown.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
+const arrowDownActor = document.createElement('span');
+arrowDownActor.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
+const arrowDownReal = document.createElement('span');
+arrowDownReal.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
 const arrowLeft = document.querySelector('.arrow-left-serie');
 const arrowRight = document.querySelector('.arrow-right-serie');
 switchSeriesTabFilters('genres');
-// fetchActors();
-// fetchDirectors();
+fetchActorsSerie();
+fetchDirectorsSerie();
 fetchSeries(0);
-export function switchMode() {
+export function switchModeSerie() {
     filterMode = filterMode === "exclusion" ? "inclusion" : "exclusion";
-    const button = document.querySelector('.filter-mode');
+    const button = document.querySelector('.filter-mode-serie');
     button.innerHTML = `Passer en mode ${filterMode === "exclusion" ? "inclusion" : "exclusion"}`;
-    const genresTab = document.querySelector('.tab-genres');
-    const directorsTab = document.querySelector('.tab-directors');
-    const actorsTab = document.querySelector('.tab-actors');
+    const genresTab = document.querySelector('.tab-genres-series');
+    const directorsTab = document.querySelector('.tab-directors-series');
+    const actorsTab = document.querySelector('.tab-actors-series');
     const modeForTab = `${filterMode.charAt(0).toUpperCase()}${filterMode.substring(1)}`;
     genresTab.innerHTML = `${modeForTab} des genres`;
     directorsTab.innerHTML = `${modeForTab} des réalisateurs`;
@@ -49,20 +51,20 @@ export function switchSeriesTabFilters(tab) {
         indexFilterActors = 0;
         indexFilterDirectors = 0;
         ['genres', 'directors', 'actors'].filter(t => t !== tab).forEach(tab => {
-            const tabEl = document.querySelector(`.tab-${tab}`);
+            const tabEl = document.querySelector(`.tab-${tab}-series`);
             tabEl.classList.remove('active');
-            const exclusionEl = document.querySelector(`.${tab}`);
+            const exclusionEl = document.querySelector(`.${tab}-series`);
             exclusionEl.style.display = 'none';
         });
-        const exclusionsTab = document.querySelector(`.tab-${tab}`);
+        const exclusionsTab = document.querySelector(`.tab-${tab}-series`);
         exclusionsTab.classList.add('active');
-        const exclusions = document.querySelector(`.${tab}`);
+        const exclusions = document.querySelector(`.${tab}-series`);
         exclusions.style.display = 'flex';
         if (tab !== 'genres')
-            yield fillFilters(tab, document.querySelector(`.list-${tab}`));
+            yield fillFiltersSeries(tab, document.querySelector(`.list-${tab}-series`));
     });
 }
-function fillFilters(tab, element, elementsSearched) {
+function fillFiltersSeries(tab, element, elementsSearched) {
     return __awaiter(this, void 0, void 0, function* () {
         let html;
         switch (tab) {
@@ -72,8 +74,8 @@ function fillFilters(tab, element, elementsSearched) {
                 html = yield Promise.all(elementsSearched ?
                     elementsSearched.filter(a => !actorsToFilter.includes(a)).slice(0, 27).map((actor) => __awaiter(this, void 0, void 0, function* () { return getPersonElement('actor', actor); })) : allActors.filter(a => !actorsToFilter.includes(a)).slice(0, 27).map((actor) => __awaiter(this, void 0, void 0, function* () { return getPersonElement('actor', actor); })));
                 element.innerHTML = `${actorFiltered.join('')}${html.join('')}`;
-                arrowDown.onclick = moreActors;
-                actorsElements.replaceChild(arrowDown, actorsElements.children[2]);
+                arrowDownActor.onclick = moreActors;
+                actorsElements.replaceChild(arrowDownActor, actorsElements.children[2]);
                 break;
             case 'directors':
                 directorsElements.replaceChild(loader, directorsElements.children[2]);
@@ -81,8 +83,8 @@ function fillFilters(tab, element, elementsSearched) {
                 html = yield Promise.all(elementsSearched ?
                     elementsSearched.filter(d => !directorsToFilter.includes(d)).slice(0, 27).map((director) => __awaiter(this, void 0, void 0, function* () { return getPersonElement('director', director); })) : allDirectors.filter(d => !directorsToFilter.includes(d)).slice(0, 27).map((director) => __awaiter(this, void 0, void 0, function* () { return getPersonElement('director', director); })));
                 element.innerHTML = `${directorFiltered.join('')}${html.join('')}`;
-                arrowDown.onclick = moreDirectors;
-                directorsElements.replaceChild(arrowDown, directorsElements.children[2]);
+                arrowDownReal.onclick = moreDirectors;
+                directorsElements.replaceChild(arrowDownReal, directorsElements.children[2]);
         }
     });
 }
@@ -126,7 +128,7 @@ function moreActors() {
         `;
         })));
         actors.innerHTML = `${actors.innerHTML}${html.join('')}`;
-        actorsElements.replaceChild(arrowDown, actorsElements.children[2]);
+        actorsElements.replaceChild(arrowDownActor, actorsElements.children[2]);
     });
 }
 function moreDirectors() {
@@ -146,7 +148,7 @@ function moreDirectors() {
         `;
         })));
         actors.innerHTML = `${actors.innerHTML}${html.join('')}`;
-        directorsElements.replaceChild(arrowDown, directorsElements.children[2]);
+        directorsElements.replaceChild(arrowDownReal, directorsElements.children[2]);
     });
 }
 function fetchPersonPicture(person) {
@@ -161,20 +163,20 @@ function searchActor() {
     return __awaiter(this, void 0, void 0, function* () {
         const input = document.querySelector('input.searchActor');
         const actors = allActors.filter(actor => actor.toLowerCase().includes(input.value.toLowerCase()));
-        yield fillFilters('actors', document.querySelector('.list-actors'), actors);
+        yield fillFiltersSeries('actors', document.querySelector('.list-actors'), actors);
     });
 }
 function searchDirector() {
     return __awaiter(this, void 0, void 0, function* () {
         const input = document.querySelector('input.searchDirector');
         const directors = allDirectors.filter(director => director.toLowerCase().includes(input.value.toLowerCase()));
-        yield fillFilters('directors', document.querySelector('.list-directors'), directors);
+        yield fillFiltersSeries('directors', document.querySelector('.list-directors'), directors);
     });
 }
-export const actorChange = debounce(() => searchActor());
-export const directorChange = debounce(() => searchDirector());
+export const actorSerieChange = debounce(() => searchActor());
+export const directorSerieChange = debounce(() => searchDirector());
 export function genreSelected(checkbox) {
-    const element = document.querySelector(`.${checkbox.value}`);
+    const element = document.querySelector(`.serie-${checkbox.value}`);
     if (checkbox.checked) {
         element.classList.add(`${filterMode === "exclusion" ? 'exclude' : 'include'}`);
     }
@@ -252,14 +254,14 @@ export function closePopupSerie() {
     const popup = document.querySelector('.serie-popup');
     popup.style.display = 'none';
 }
-function fetchActors() {
+function fetchActorsSerie() {
     return __awaiter(this, void 0, void 0, function* () {
         const result = yield fetch(`${API_URL}/series/acteurs`);
         const content = yield result.json();
         allActors = content;
     });
 }
-function fetchDirectors() {
+function fetchDirectorsSerie() {
     return __awaiter(this, void 0, void 0, function* () {
         const result = yield fetch(`${API_URL}/series/realisateurs`);
         const content = yield result.json();
@@ -288,19 +290,21 @@ function fetchSeries(page, direction) {
         });
         const content = yield result.json();
         const series = content.content;
-        arrowRight.onclick = () => __awaiter(this, void 0, void 0, function* () {
-            yield navigate('right', page + 1);
-        });
-        if (page > 0) {
-            arrowLeft.classList.remove('arrow-invisible');
-            arrowLeft.onclick = () => __awaiter(this, void 0, void 0, function* () {
-                yield navigate('left', page - 1);
-            });
+        if (content.last) {
+            disableArrow(arrowRight);
         }
         else {
-            arrowLeft.onclick = null;
-            if (!arrowLeft.classList.contains('arrow-invisible'))
-                arrowLeft === null || arrowLeft === void 0 ? void 0 : arrowLeft.classList.add('arrow-invisible');
+            enableArrow(arrowRight, () => __awaiter(this, void 0, void 0, function* () {
+                yield navigate('right', page + 1);
+            }));
+        }
+        if (page > 0) {
+            enableArrow(arrowLeft, () => __awaiter(this, void 0, void 0, function* () {
+                yield navigate('left', page - 1);
+            }));
+        }
+        else {
+            disableArrow(arrowLeft);
         }
         fillLine(series.slice(0, 8), 1, direction);
         fillLine(series.slice(8, 16), 2, direction);
@@ -349,9 +353,9 @@ window.navigate = navigate;
 window.genreSelected = genreSelected;
 window.directorSelectedForSerie = directorSelectedForSerie;
 window.actorSelectedForSerie = actorSelectedForSerie;
-window.actorChange = actorChange;
-window.directorChange = directorChange;
-window.switchMode = switchMode;
+window.actorSerieChange = actorSerieChange;
+window.directorSerieChange = directorSerieChange;
+window.switchModeSerie = switchModeSerie;
 window.moreActors = moreActors;
 window.moreDirectors = moreDirectors;
 function updateTopPositions() {
