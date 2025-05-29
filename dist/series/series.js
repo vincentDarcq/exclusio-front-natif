@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { debounce, disableArrow, enableArrow, loaderLeft, loaderRight, searchSerieInGlobal } from "../index.js";
-export const API_URL = 'http://localhost:8080';
+import { API_URL } from "../index.js";
 let allSeries = [];
 let allActors = [];
 let allDirectors = [];
@@ -175,7 +175,7 @@ function searchDirector() {
 }
 export const actorSerieChange = debounce(() => searchActor());
 export const directorSerieChange = debounce(() => searchDirector());
-export function genreSelected(checkbox) {
+export function genreSelectedForSerie(checkbox) {
     const element = document.querySelector(`.serie-${checkbox.value}`);
     if (checkbox.checked) {
         element.classList.add(`${filterMode === "exclusion" ? 'exclude' : 'include'}`);
@@ -350,7 +350,7 @@ window.closePopupSerie = closePopupSerie;
 window.selectSerie = selectSerie;
 window.switchSeriesTabFilters = switchSeriesTabFilters;
 window.navigate = navigate;
-window.genreSelected = genreSelected;
+window.genreSelectedForSerie = genreSelectedForSerie;
 window.directorSelectedForSerie = directorSelectedForSerie;
 window.actorSelectedForSerie = actorSelectedForSerie;
 window.actorSerieChange = actorSerieChange;

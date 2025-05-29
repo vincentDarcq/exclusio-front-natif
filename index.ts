@@ -1,4 +1,3 @@
-import { API_URL } from './films/films.js';
 import { Movie } from './films/movie_type.js';
 import { routes } from './routes.js';
 import { Serie } from './series/serie_type.js';
@@ -20,6 +19,28 @@ declare global {
   interface Window {
     handleRedirect: (url: string) => void;
     globalSearch: () => void;
+    connexion: () => void;
+    logout: () => void;
+  }
+}
+
+export const API_URL = 'http://localhost:8080';
+
+isLoggedIn();
+
+async function isLoggedIn() {
+  const response = await fetch(`${API_URL}/connexion/isLoggedIn`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  const connexion = document.querySelector('.connexion') as HTMLElement;
+  const site = document.querySelector('.site') as HTMLElement;
+  if (response.ok) {
+    connexion.style.display = 'none';
+    site.style.display = 'block';
+  } else {
+    site.style.display = 'none';
   }
 }
 
@@ -113,8 +134,38 @@ export function searchSerieInGlobal(id: string): Serie | undefined{
   return globalSearchList.find(serie => serie.id === parseInt(id)) as Serie
 }
 
+export const connexionChange = debounce(() => connexion());
+
+const inputId = document.querySelector('input.id') as HTMLInputElement;
+inputId.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    connexion();
+  }
+});
+
+export async function connexion() {
+  await fetch(`${API_URL}/connexion?id=${inputId.value}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",          // autre exemple
+    },
+    credentials: "include",
+  });
+  isLoggedIn();
+}
+
+export async function logout() {
+  await fetch(`${API_URL}/connexion/logout`, {
+    method: "GET",
+    credentials: "include",
+  });
+  window.location.reload();
+}
+
 window.handleRedirect = handleRedirect;
 window.globalSearch = globalSearch;
+window.connexion = connexion;
+window.logout = logout;
 
 export function debounce<T extends (...args: any[]) => void>(
   func: T,

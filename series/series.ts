@@ -1,4 +1,5 @@
 import { debounce, disableArrow, enableArrow, loaderLeft, loaderRight, searchSerieInGlobal } from "../index.js";
+import { API_URL } from "../index.js";
 import { PageResult } from "../page_result.js";
 import { Serie } from "./serie_type.js";
 
@@ -19,7 +20,6 @@ declare global {
   }
 }
 
-export const API_URL = 'http://localhost:8080';
 let allSeries: Array<Serie> = [];
 let allActors: Array<string> = [];
 let allDirectors: Array<string> = [];
@@ -210,7 +210,7 @@ async function searchDirector() {
 export const actorSerieChange = debounce(() => searchActor());
 export const directorSerieChange = debounce(() => searchDirector());
 
-export function genreSelected(checkbox: HTMLInputElement) {
+export function genreSelectedForSerie(checkbox: HTMLInputElement) {
   const element = document.querySelector(`.serie-${checkbox.value}`) as HTMLInputElement;
   if (checkbox.checked) {
     element.classList.add(`${filterMode === "exclusion" ? 'exclude' : 'include'}`)
@@ -381,7 +381,7 @@ window.closePopupSerie = closePopupSerie;
 window.selectSerie = selectSerie;
 window.switchSeriesTabFilters = switchSeriesTabFilters;
 window.navigate = navigate;
-window.genreSelected = genreSelected;
+window.genreSelectedForSerie = genreSelectedForSerie;
 window.directorSelectedForSerie = directorSelectedForSerie;
 window.actorSelectedForSerie = actorSelectedForSerie;
 window.actorSerieChange = actorSerieChange;

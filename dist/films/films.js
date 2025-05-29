@@ -7,8 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+import { API_URL } from "../index.js";
 import { debounce, disableArrow, enableArrow, loaderLeft, loaderRight, searchMovieInGlobal } from "../index.js";
-export const API_URL = 'http://localhost:8080';
 let allMovies = [];
 let allActors = [];
 let allDirectors = [];

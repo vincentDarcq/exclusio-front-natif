@@ -7,7 +7,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { API_URL } from './films/films.js';
 import { routes } from './routes.js';
 const baseUrl = window.location.origin;
 if (window.location.pathname !== '/') {
@@ -23,6 +22,25 @@ export const loaderRight = document.createElement('i');
 loaderRight.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto', 'spinner-carrousel-right');
 export const loaderLeft = document.createElement('i');
 loaderLeft.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto', 'spinner-carrousel-left');
+export const API_URL = 'http://localhost:8080';
+isLoggedIn();
+function isLoggedIn() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const response = yield fetch(`${API_URL}/connexion/isLoggedIn`, {
+            method: "GET",
+            credentials: "include",
+        });
+        const connexion = document.querySelector('.connexion');
+        const site = document.querySelector('.site');
+        if (response.ok) {
+            connexion.style.display = 'none';
+            site.style.display = 'block';
+        }
+        else {
+            site.style.display = 'none';
+        }
+    });
+}
 document.querySelector('.globalSearch').addEventListener('focus', () => {
     if (globalSearchList.length > 0)
         fillGlobalResults();
@@ -110,8 +128,38 @@ export function searchMovieInGlobal(id) {
 export function searchSerieInGlobal(id) {
     return globalSearchList.find(serie => serie.id === parseInt(id));
 }
+export const connexionChange = debounce(() => connexion());
+const inputId = document.querySelector('input.id');
+inputId.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        connexion();
+    }
+});
+export function connexion() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield fetch(`${API_URL}/connexion?id=${inputId.value}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json", // autre exemple
+            },
+            credentials: "include",
+        });
+        isLoggedIn();
+    });
+}
+export function logout() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield fetch(`${API_URL}/connexion/logout`, {
+            method: "GET",
+            credentials: "include",
+        });
+        window.location.reload();
+    });
+}
 window.handleRedirect = handleRedirect;
 window.globalSearch = globalSearch;
+window.connexion = connexion;
+window.logout = logout;
 export function debounce(func, timeout = 800) {
     let timer;
     return (...args) => {

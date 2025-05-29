@@ -1,3 +1,4 @@
+import { API_URL } from "../index.js";
 import { debounce, disableArrow, enableArrow, loaderLeft, loaderRight, searchMovieInGlobal } from "../index.js";
 import { PageResult } from "../page_result.js";
 import { Movie } from "./movie_type.js";
@@ -19,7 +20,6 @@ declare global {
   }
 }
 
-export const API_URL = 'http://localhost:8080';
 let allMovies: Array<Movie> = [];
 let allActors: Array<string> = [];
 let allDirectors: Array<string> = [];
