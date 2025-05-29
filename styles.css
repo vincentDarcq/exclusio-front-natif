@@ -8,18 +8,6 @@ body {
     background-image: linear-gradient(to right, #24243E, #726e9c, #0F0C29);
 }
 
-.connexion{
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center; /* centre horizontalement */
-    align-items: center; 
-}
-
-.id{
-    width: 200px;
-}
-
 .flex{
     display: flex;
     flex-wrap: wrap;

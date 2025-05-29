@@ -1,0 +1,21 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    color: #FFFF;
+    background: #0F0C29;
+    background-image: -webkit-linear-gradient(to right, #24243E, #726e9c, #0F0C29);
+    background-image: linear-gradient(to right, #24243E, #726e9c, #0F0C29);
+}
+
+.connexion{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+}
+
+.id{
+    width: 200px;
+}
