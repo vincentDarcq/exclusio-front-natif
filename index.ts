@@ -1,6 +1,6 @@
-import { Movie } from './films/movie_type.js';
+import { Movie } from './movie_type.js';
 import { routes } from './routes.js';
-import { Serie } from './series/serie_type.js';
+import { Serie } from './serie_type.js';
 const baseUrl = window.location.origin;
 if (window.location.pathname !== '/') {
   handleRedirect(window.location.pathname.substring(1))

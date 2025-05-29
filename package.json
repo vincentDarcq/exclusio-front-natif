@@ -3,6 +3,7 @@
     "typescript": "^5.8.3"
   },
   "scripts": {
+    "build": "npx tsc && cp -R dist/* /Users/vincentdarcq/Documents/gitws/exclusio/src/main/resources/static",
     "start": "node start.js"
   },
   "devDependencies": {

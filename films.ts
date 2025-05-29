@@ -1,26 +1,26 @@
-import { debounce, disableArrow, enableArrow, loaderLeft, loaderRight, searchSerieInGlobal } from "../index.js";
-import { API_URL } from "../index.js";
-import { PageResult } from "../page_result.js";
-import { Serie } from "./serie_type.js";
+import { API_URL } from "./index.js";
+import { debounce, disableArrow, enableArrow, loaderLeft, loaderRight, searchMovieInGlobal } from "./index.js";
+import { PageResult } from "./page_result.js";
+import { Movie } from "./movie_type.js";
 
 declare global {
   interface Window {
-    switchSeriesTabFilters: (url: string) => Promise<void>;
-    selectSerie(id: string): Promise<void>;
+    switchFilmsTabFilters: (url: string) => Promise<void>;
+    selectMovie(id: string): Promise<void>;
     navigate(direction: string, carousel: number, page: number): void;
-    closePopupSerie: () => void;
-    genreSelectedForSerie: (checkbox: HTMLInputElement) => void;
-    actorSelectedForSerie: (actor: string) => void;
-    directorSelectedForSerie: (director: string) => void;
-    actorSerieChange: () => void;
-    directorSerieChange: () => void;
-    switchModeSerie: () => void;
+    closePopup: () => void;
+    genreSelected: (checkbox: HTMLInputElement) => void;
+    actorSelected: (actor: string) => void;
+    directorSelected: (director: string) => void;
+    actorChange: () => void;
+    directorChange: () => void;
+    switchMode: () => void;
     moreActors: () => void;
     moreDirectors: () => void;
   }
 }
 
-let allSeries: Array<Serie> = [];
+let allMovies: Array<Movie> = [];
 let allActors: Array<string> = [];
 let allDirectors: Array<string> = [];
 let genresToFilter: Array<string> = [];
@@ -29,56 +29,56 @@ let directorsToFilter: Array<string> = [];
 let filterMode = "exclusion";
 let indexFilterActors = 0;
 let indexFilterDirectors = 0;
-let directorsElements = document.querySelector('.directors-series') as HTMLElement;
-let actorsElements = document.querySelector('.actors-series') as HTMLElement;
-const caroussels = document.querySelectorAll('.carousels');
-const carouselSerie = caroussels![1] as HTMLElement;
+let directorsElements = document.querySelector('.directors') as HTMLElement;
+let actorsElements = document.querySelector('.actors') as HTMLElement;
+const caroussels = document.querySelector('.carousels') as HTMLElement;
 const loader = document.createElement('i');
 loader.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto');
-const arrowDownActor = document.createElement('span');
-arrowDownActor.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
-const arrowDownReal = document.createElement('span');
-arrowDownReal.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
-const arrowLeft = document.querySelector('.arrow-left-serie') as HTMLElement;
-const arrowRight = document.querySelector('.arrow-right-serie') as HTMLElement;
-  
-switchSeriesTabFilters('genres');
-fetchActorsSerie();
-fetchDirectorsSerie();
-fetchSeries(0);
 
-export function switchModeSerie(){
+const arrowDownFilmActor = document.createElement('span');
+arrowDownFilmActor.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
+const arrowDownFilmReal = document.createElement('span');
+arrowDownFilmReal.classList.add('fa', 'fa-2x', 'fa-arrow-circle-down');
+const arrowLeft = document.querySelector('.fa-arrow-circle-left') as HTMLElement;
+const arrowRight = document.querySelector('.fa-arrow-circle-right') as HTMLElement;
+  
+switchFilmsTabFilters('genres');
+fetchActors();
+fetchDirectors();
+fetchFilms(0);
+
+export function switchMode(){
   filterMode = filterMode === "exclusion" ? "inclusion" : "exclusion";
-  const button = document.querySelector('.filter-mode-serie') as HTMLElement;
+  const button = document.querySelector('.filter-mode') as HTMLElement;
   button.innerHTML = `Passer en mode ${filterMode === "exclusion" ? "inclusion" : "exclusion"}`;
-  const genresTab = document.querySelector('.tab-genres-series') as HTMLElement;
-  const directorsTab = document.querySelector('.tab-directors-series') as HTMLElement;
-  const actorsTab = document.querySelector('.tab-actors-series') as HTMLElement;
+  const genresTab = document.querySelector('.tab-genres') as HTMLElement;
+  const directorsTab = document.querySelector('.tab-directors') as HTMLElement;
+  const actorsTab = document.querySelector('.tab-actors') as HTMLElement;
   const modeForTab = `${filterMode.charAt(0).toUpperCase()}${filterMode.substring(1)}`
   genresTab.innerHTML = `${modeForTab} des genres`;
   directorsTab.innerHTML = `${modeForTab} des réalisateurs`;
   actorsTab.innerHTML = `${modeForTab} des acteurs`;
 }
 
-export async function switchSeriesTabFilters(tab: string): Promise<void> {
+export async function switchFilmsTabFilters(tab: string): Promise<void> {
   indexFilterActors = 0;
   indexFilterDirectors = 0;
   ['genres', 'directors', 'actors'].filter(t => t !== tab).forEach(
     tab => {
-      const tabEl = document.querySelector(`.tab-${tab}-series`) as HTMLElement;
+      const tabEl = document.querySelector(`.tab-${tab}`) as HTMLElement;
       tabEl.classList.remove('active');
-      const exclusionEl = document.querySelector(`.${tab}-series`) as HTMLElement;
+      const exclusionEl = document.querySelector(`.${tab}`) as HTMLElement;
       exclusionEl.style.display = 'none';
     }
   )
-  const exclusionsTab = document.querySelector(`.tab-${tab}-series`) as HTMLElement;
+  const exclusionsTab = document.querySelector(`.tab-${tab}`) as HTMLElement;
   exclusionsTab.classList.add('active');
-  const exclusions = document.querySelector(`.${tab}-series`) as HTMLElement;
+  const exclusions = document.querySelector(`.${tab}`) as HTMLElement;
   exclusions.style.display = 'flex';
-  if(tab !== 'genres')  await fillFiltersSeries(tab, document.querySelector(`.list-${tab}-series`) as HTMLElement);
+  if(tab !== 'genres')  await fillFilters(tab, document.querySelector(`.list-${tab}`) as HTMLElement);
 }
 
-async function fillFiltersSeries(tab: string, element: HTMLElement, elementsSearched?: Array<string>) {
+async function fillFilters(tab: string, element: HTMLElement, elementsSearched?: Array<string>) {
   let html;
   switch (tab) {
     case 'actors':
@@ -97,8 +97,8 @@ async function fillFiltersSeries(tab: string, element: HTMLElement, elementsSear
           )
       )
       element.innerHTML = `${actorFiltered.join('')}${html.join('')}`;
-      arrowDownActor.onclick = moreActors;
-      actorsElements.replaceChild(arrowDownActor, actorsElements.children[2]);
+      arrowDownFilmActor.onclick = moreActors;
+      actorsElements.replaceChild(arrowDownFilmActor, actorsElements.children[2]);
       break;
     case 'directors':
       directorsElements.replaceChild(loader, directorsElements.children[2]);
@@ -116,8 +116,8 @@ async function fillFiltersSeries(tab: string, element: HTMLElement, elementsSear
           )
       )
       element.innerHTML = `${directorFiltered.join('')}${html.join('')}`;
-      arrowDownReal.onclick = moreDirectors;
-      directorsElements.replaceChild(arrowDownReal, directorsElements.children[2]);
+      arrowDownFilmReal.onclick = moreDirectors;
+      directorsElements.replaceChild(arrowDownFilmReal, directorsElements.children[2]);
   }  
 }
 
@@ -127,7 +127,7 @@ async function getPersonElement(type: string, person: string, filter = false): P
   const picture = await fetchPersonPicture(person);
   return `
     <div class="element flex-column"
-      ${type === 'actor' ? `onclick="actorSelectedForSerie('${selector}')"` : `onclick="directorSelectedForSerie('${selector}')"`}
+      ${type === 'actor' ? `onclick="actorSelected('${selector}')"` : `onclick="directorSelected('${selector}')"`}
     >
       ${picture ? `<img src="${picture}" alt="actor">` : ''}
       <span class="
@@ -153,16 +153,20 @@ async function moreActors() {
         const i = actorsToFilter.findIndex(a => a === actor);
         const picture = await fetchPersonPicture(actor);
         return `
-          <div class="element flex-column" id="${selector}" onclick="actorSelectedForSerie('${selector}')">
+          <div class="
+              ${selector}
+              element flex-column"
+            onclick="actorSelected('${selector}')"
+          >
             ${picture ? `<img src="${picture}" alt="actor">` : ''}
-            <span class="${selector} ${i !== -1 ? 'element-selected' : ''}">${actor}</span>
+            <span class="${i !== -1 ? 'element-selected' : ''} margin-auto">${actor}</span>
           </div>
         `
       }
     )
   )
   actors.innerHTML = `${actors.innerHTML}${html.join('')}`;
-  actorsElements.replaceChild(arrowDownActor, actorsElements.children[2]);
+  actorsElements.replaceChild(arrowDownFilmActor, actorsElements.children[2]);
 }
 
 async function moreDirectors() {
@@ -176,16 +180,20 @@ async function moreDirectors() {
         const i = directorsToFilter.findIndex(a => a === director);
         const picture = await fetchPersonPicture(director);
         return `
-          <div class="element flex-column">
+          <div class="
+              ${selector}
+              element flex-column"
+            onclick="directorSelected('${selector}')"
+          >
             ${picture ? `<img src= "${picture}" alt = "director" >` : ''}
-            <span class="${selector} ${i !== -1 ? 'element-selected' : ''}">${director}</span>
+            <span class=" ${i !== -1 ? 'element-selected' : ''} margin-auto">${director}</span>
           </div>
         `
       }
     )
   )
   actors.innerHTML = `${actors.innerHTML}${html.join('')}`;
-  directorsElements.replaceChild(arrowDownReal, directorsElements.children[2]);
+  directorsElements.replaceChild(arrowDownFilmReal, directorsElements.children[2]);
 }
 
 async function fetchPersonPicture(person: string) {
@@ -198,20 +206,20 @@ async function fetchPersonPicture(person: string) {
 async function searchActor() {
   const input = document.querySelector('input.searchActor') as HTMLInputElement;
   const actors = allActors.filter(actor => actor.toLowerCase().includes(input.value.toLowerCase()));
-  await fillFiltersSeries('actors', document.querySelector('.list-actors') as HTMLElement, actors)
+  await fillFilters('actors', document.querySelector('.list-actors') as HTMLElement, actors)
 }
 
 async function searchDirector() {
   const input = document.querySelector('input.searchDirector') as HTMLInputElement;
   const directors = allDirectors.filter(director => director.toLowerCase().includes(input.value.toLowerCase()));
-  await fillFiltersSeries('directors', document.querySelector('.list-directors') as HTMLElement, directors)
+  await fillFilters('directors', document.querySelector('.list-directors') as HTMLElement, directors)
 }
 
-export const actorSerieChange = debounce(() => searchActor());
-export const directorSerieChange = debounce(() => searchDirector());
+export const actorChange = debounce(() => searchActor());
+export const directorChange = debounce(() => searchDirector());
 
-export function genreSelectedForSerie(checkbox: HTMLInputElement) {
-  const element = document.querySelector(`.serie-${checkbox.value}`) as HTMLInputElement;
+export function genreSelected(checkbox: HTMLInputElement) {
+  const element = document.querySelector(`.${checkbox.value}`) as HTMLInputElement;
   if (checkbox.checked) {
     element.classList.add(`${filterMode === "exclusion" ? 'exclude' : 'include'}`)
   } else {
@@ -222,10 +230,10 @@ export function genreSelectedForSerie(checkbox: HTMLInputElement) {
   } else {
     genresToFilter.splice(genresToFilter.findIndex(g => g === checkbox.value), 1);
   }
-  fetchSeries(0);
+  fetchFilms(0);
 }
 
-export function actorSelectedForSerie(actor: string) {
+export function actorSelected(actor: string) {
   const indexActor = allActors.map(a => a.replace(/\s+/g, '')).findIndex(a => a === actor);
   const element = document.querySelector(`.${actor}`) as HTMLInputElement;
   const actorChecked = actorsToFilter.map(a => a.replace(/\s+/g, '')).includes(actor);
@@ -236,10 +244,10 @@ export function actorSelectedForSerie(actor: string) {
     element.classList.add(`${filterMode === "exclusion" ? 'exclude' : 'include'}`)
     actorsToFilter.push(allActors[indexActor]);
   }
-  fetchSeries(0);
+  fetchFilms(0);
 }
 
-export function directorSelectedForSerie(director: string) {
+export function directorSelected(director: string) {
   const indexDirector = allDirectors.map(d => d.replace(/\s+/g, '')).findIndex(d => d === director);
   const element = document.querySelector(`.${director}`) as HTMLInputElement;
   const actorChecked = directorsToFilter.map(a => a.replace(/\s+/g, '')).includes(director);
@@ -250,62 +258,62 @@ export function directorSelectedForSerie(director: string) {
     element.classList.add(`${filterMode === "exclusion" ? 'exclude' : 'include'}`)
     directorsToFilter.push(allDirectors[indexDirector]);
   }
-  fetchSeries(0);
+  fetchFilms(0);
 }
 
-export async function selectSerie(id: string): Promise<void> {
-  let serie = allSeries.find(serie => serie.id === parseInt(id));
-  if (!serie)  serie = searchSerieInGlobal(id);
-  const popup = document.querySelector('.serie-popup') as HTMLElement;
-  const emptyCov = serie?.covPortrait.indexOf('empty');
+export async function selectMovie(id: string): Promise<void> {
+  let movie = allMovies.find(movie => movie.id === parseInt(id));
+  if (!movie)  movie = searchMovieInGlobal(id);
+  const popup = document.querySelector('.film-popup') as HTMLElement;
+  const emptyCov = movie?.covPortrait.indexOf('empty');
   popup!.innerHTML = `
     <div class="flex header">
-      <h2 class="serie-title">${serie?.titre}</h2>
-      <div class="cross" onClick="closePopupSerie()">X</div>
+      <h2 class="film-title">${movie?.titre}</h2>
+      <div class="cross" onClick="closePopup()">X</div>
     </div>
     <div class="flex infos">
       <div class="flex-column">
-        <h4>Genres : ${serie?.genre}</h4>
-        <h4>Casting : ${serie?.casting}</h4>
-        <h4>Réalisateur: ${serie?.realisateur}</h4>
-        <h4>Episodes: ${serie?.episodes}</h4>
-        <h4>Saisons: ${serie?.seasons}</h4>
-        <h4>${serie?.year}</h4>
+        <h4>Genres : ${movie?.genre}</h4>
+        <h4>Casting : ${movie?.casting}</h4>
+        <h4>Réalisateur: ${movie?.realisateur}</h4>
+        <h4>Durée: ${movie?.time}</h4>
+        <h4>Année: ${movie?.year}</h4>
       </div>
-      ${emptyCov === -1 ? `<img src="${serie?.covPortrait}" alt="cov" >` : ''}
+      ${emptyCov === -1 ? `<img src="${movie?.covPortrait}" alt="cov" >` : ''}
     </div>
-    ${serie?.synopsis ? `<p>${serie?.synopsis} </p>` : ''}
+    ${movie?.synopsis ? `<p>${movie?.synopsis} </p>` : ''}
     <div class="flex notes">
-      ${serie?.alloGrade ? `<span>Note allociné: ${ serie?.alloGrade }/5</span >` : ''}
+      ${movie?.alloGrade ? `<span>Note allociné: ${ movie?.alloGrade }/5</span >` : ''}
+      ${movie?.imdbGrade ? `<span>Note Imdb: ${movie.imdbGrade}/10</span>` : ''}
     </div>
   `;
   popup.style.display = 'block';
 }
 
-export function closePopupSerie() {
-  const popup = document.querySelector('.serie-popup') as HTMLElement;
+export function closePopup() {
+  const popup = document.querySelector('.film-popup') as HTMLElement;
   popup.style.display = 'none';
 }
 
-async function fetchActorsSerie() {
-  const result = await fetch(`${API_URL}/series/acteurs`);
+async function fetchActors() {
+  const result = await fetch(`${API_URL}/movies/acteurs`);
   const content = await result.json();
   allActors = content;
 }
 
-async function fetchDirectorsSerie() {
-  const result = await fetch(`${API_URL}/series/realisateurs`);
+async function fetchDirectors() {
+  const result = await fetch(`${API_URL}/movies/realisateurs`);
   const content = await result.json();
   allDirectors = content;
 }
 
 export async function navigate(direction: string, page: number) {
-  fetchSeries(page, direction);
+  fetchFilms(page, direction);
 }
 
-async function fetchSeries(page: number, direction?: string): Promise<void> {
-  if (direction) carouselSerie.replaceChild(direction === 'right' ? loaderRight : loaderLeft, carouselSerie.children[direction === 'right' ? 2 : 0]);
-  const result = await fetch(`${API_URL}/series/${filterMode === "exclusion" ? 'exclusions' : 'inclusions'}/${page}`, {
+async function fetchFilms(page: number, direction?: string): Promise<void> {
+  if (direction) caroussels.replaceChild(direction === 'right' ? loaderRight : loaderLeft, caroussels.children[direction === 'right' ? 2 : 0]);
+  const result = await fetch(`${API_URL}/movies/${filterMode === "exclusion" ? 'exclusions' : 'inclusions'}/${page}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -317,57 +325,56 @@ async function fetchSeries(page: number, direction?: string): Promise<void> {
     })
   });
   const content: PageResult = await result.json();
-  const series: Array<Serie> = content.content;
+  const movies: Array<Movie> = content.content;
   if (content.last) {
-    disableArrow(arrowRight);
-  } else {
-    enableArrow(arrowRight, async () => {
-      await navigate('right', page + 1);
-    });
-  }
-  if (page > 0) {
-    enableArrow(arrowLeft, async () => {
-      await navigate('left', page - 1);
-    });
-  } else {
-    disableArrow(arrowLeft);
-  }
-  fillLine(series.slice(0, 8), 1, direction)
-  fillLine(series.slice(8, 16), 2, direction)
-  fillLine(series.slice(16), 3, direction)
-  if (direction) carouselSerie.replaceChild(direction === 'right' ? arrowRight : arrowLeft, carouselSerie.children[direction === 'right' ? 2 : 0]);
+      disableArrow(arrowRight);
+    } else {
+      enableArrow(arrowRight, async () => {
+        await navigate('right', page + 1);
+      });
+    }
+    if (page > 0) {
+      enableArrow(arrowLeft, async () => {
+        await navigate('left', page - 1);
+      });
+    } else {
+      disableArrow(arrowLeft);
+    }
+  fillLine(movies.slice(0, 8), 1, direction)
+  fillLine(movies.slice(8, 16), 2, direction)
+  fillLine(movies.slice(16), 3, direction)
+  if (direction) caroussels.replaceChild(direction === 'right' ? arrowRight : arrowLeft, caroussels.children[direction === 'right' ? 2 : 0]);
 }
 
 
-
-function fillLine(series: Array<Serie>, line: number, direction?: string) {
+function fillLine(movies: Array<Movie>, line: number, direction?: string) {
   let html = '';
-  series.forEach(
-    serie => {
-      if (allSeries.findIndex(m => m.id === serie.id) === -1) {
-        allSeries.push(serie);
+  movies.forEach(
+    movie => {
+      if (allMovies.findIndex(m => m.id === movie.id) === -1) {
+        allMovies.push(movie);
       }
-      const emptyCov = serie.covPortrait.indexOf('empty');
+      const emptyCov = movie.covPortrait.indexOf('empty');
       html += `
-        ${emptyCov === -1 ? `<img class="img-serie" src="${serie.covPortrait}" alt="${serie.titre}" onclick="selectSerie(${serie.id})" >`
-          : `<span class="titre-no-cov" onclick="selectSerie(${serie.id})">${serie.titre}</span>`}
+        ${emptyCov === -1 ? `<img class="img-movie" src="${movie.covPortrait}" alt="${movie.titre}" onclick="selectMovie(${movie.id})" >`
+          : `<span class="titre-no-cov" onclick="selectMovie(${movie.id})">${movie.titre}</span>`}
       `;
     }
   );
   if (direction) {
     slide(direction, line, html);
   } else {
-    const slide = document.querySelector(`.series_${line}`);
+    const slide = document.querySelector(`.films_${line}`);
     slide!.innerHTML = html;
   }
 }
 
 function slide(direction: string, line: number, content: string) {
-  const container = document.querySelector('.lines-series');
+  const container = document.querySelector('.lines');
   const newSlide = document.createElement('div');
-  newSlide.classList.add('flex', `series_${line}`, `enter-${direction}`);
+  newSlide.classList.add('flex', `films_${line}`, `enter-${direction}`);
   newSlide.innerHTML = content;
-  const oldSlide = document!.querySelector(`.series_${line}`);
+  const oldSlide = document!.querySelector(`.films_${line}`);
   oldSlide!.classList.add(`leave-${direction === 'right' ? 'left' : 'right'}`);
 
   oldSlide!.addEventListener('animationend', () => {
@@ -377,28 +384,28 @@ function slide(direction: string, line: number, content: string) {
   updateTopPositions();
 }
 
-window.closePopupSerie = closePopupSerie;
-window.selectSerie = selectSerie;
-window.switchSeriesTabFilters = switchSeriesTabFilters;
+window.closePopup = closePopup;
+window.selectMovie = selectMovie;
+window.switchFilmsTabFilters = switchFilmsTabFilters;
 window.navigate = navigate;
-window.genreSelectedForSerie = genreSelectedForSerie;
-window.directorSelectedForSerie = directorSelectedForSerie;
-window.actorSelectedForSerie = actorSelectedForSerie;
-window.actorSerieChange = actorSerieChange;
-window.directorSerieChange = directorSerieChange;
-window.switchModeSerie = switchModeSerie;
+window.genreSelected = genreSelected;
+window.directorSelected = directorSelected;
+window.actorSelected = actorSelected;
+window.actorChange = actorChange;
+window.directorChange = directorChange;
+window.switchMode = switchMode;
 window.moreActors = moreActors;
 window.moreDirectors = moreDirectors;
 
 function updateTopPositions() {
   const viewportWidth = window.innerWidth;
 
-  const series2 = document.querySelector('.series_2') as HTMLElement;
-  const series3 = document.querySelector('.series_3') as HTMLElement;
+  const films2 = document.querySelector('.films_2') as HTMLElement;
+  const films3 = document.querySelector('.films_3') as HTMLElement;
 
-  if (series2 && series3) {
-      series2.style.top = `${viewportWidth * 0.12}px`;
-      series3.style.top = `${viewportWidth * 0.25}px`;
+  if (films2 && films3) {
+      films2.style.top = `${viewportWidth * 0.12}px`;
+      films3.style.top = `${viewportWidth * 0.25}px`;
   }
 }
 
