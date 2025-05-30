@@ -22,7 +22,6 @@ export const loaderRight = document.createElement('i');
 loaderRight.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto', 'spinner-carrousel-right');
 export const loaderLeft = document.createElement('i');
 loaderLeft.classList.add('fa', 'fa-2x', 'fa-spinner', 'spinner', 'margin-auto', 'spinner-carrousel-left');
-export const API_URL = 'http://localhost:8080';
 document.querySelector('.globalSearch').addEventListener('focus', () => {
     if (globalSearchList.length > 0)
         fillGlobalResults();
@@ -65,7 +64,7 @@ function search() {
             const loader = document.createElement('i');
             loader.classList.add('fa', 'fa-spinner', 'spinner');
             searchElement.replaceChild(loader, searchElement.children[1]);
-            const search = yield fetch(`${API_URL}/movies/findSubTitle/${input.value.toLowerCase()}`);
+            const search = yield fetch(`movies/findSubTitle/${input.value.toLowerCase()}`);
             globalSearchList = yield search.json();
             if (globalSearchList.length > 0)
                 fillGlobalResults();
@@ -112,7 +111,7 @@ export function searchSerieInGlobal(id) {
 }
 export function logout() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield fetch(`${API_URL}/connexion/logout`, {
+        yield fetch(`connexion/logout`, {
             method: "GET",
             credentials: "include",
         });

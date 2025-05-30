@@ -1,5 +1,4 @@
 import { debounce, disableArrow, enableArrow, loaderLeft, loaderRight, searchSerieInGlobal } from "./index.js";
-import { API_URL } from "./index.js";
 import { PageResult } from "./page_result.js";
 import { Serie } from "./serie_type.js";
 
@@ -15,8 +14,8 @@ declare global {
     actorSerieChange: () => void;
     directorSerieChange: () => void;
     switchModeSerie: () => void;
-    moreActors: () => void;
-    moreDirectors: () => void;
+    moreSerieActors: () => void;
+    moreSerieDirectors: () => void;
   }
 }
 
@@ -97,7 +96,7 @@ async function fillFiltersSeries(tab: string, element: HTMLElement, elementsSear
           )
       )
       element.innerHTML = `${actorFiltered.join('')}${html.join('')}`;
-      arrowDownActor.onclick = moreActors;
+      arrowDownActor.onclick = moreSerieActors;
       actorsElements.replaceChild(arrowDownActor, actorsElements.children[2]);
       break;
     case 'directors':
@@ -116,7 +115,7 @@ async function fillFiltersSeries(tab: string, element: HTMLElement, elementsSear
           )
       )
       element.innerHTML = `${directorFiltered.join('')}${html.join('')}`;
-      arrowDownReal.onclick = moreDirectors;
+      arrowDownReal.onclick = moreSerieDirectors;
       directorsElements.replaceChild(arrowDownReal, directorsElements.children[2]);
   }  
 }
@@ -142,7 +141,7 @@ async function getPersonElement(type: string, person: string, filter = false): P
   `
 }
 
-async function moreActors() {
+async function moreSerieActors() {
   indexFilterActors += 28;
   actorsElements.replaceChild(loader, actorsElements.children[2]);
   const actors = document.querySelector(`.list-actors`) as HTMLElement;
@@ -165,7 +164,7 @@ async function moreActors() {
   actorsElements.replaceChild(arrowDownActor, actorsElements.children[2]);
 }
 
-async function moreDirectors() {
+async function moreSerieDirectors() {
   indexFilterDirectors += 28;
   directorsElements.replaceChild(loader, directorsElements.children[2]);
   const actors = document.querySelector(`.list-directors`) as HTMLElement;
@@ -190,21 +189,21 @@ async function moreDirectors() {
 
 async function fetchPersonPicture(person: string) {
   const stringPerson = person.replace(' ', '%20');
-  const searchPerson = await fetch(`${API_URL}/allo/${stringPerson}`);
+  const searchPerson = await fetch(`allo/${stringPerson}`);
   const resultPerson = await searchPerson.json();
   return resultPerson[0].data.thumbnail;
 }
 
 async function searchActor() {
-  const input = document.querySelector('input.searchActor') as HTMLInputElement;
+  const input = document.querySelector('input.searchActorSerie') as HTMLInputElement;
   const actors = allActors.filter(actor => actor.toLowerCase().includes(input.value.toLowerCase()));
-  await fillFiltersSeries('actors', document.querySelector('.list-actors') as HTMLElement, actors)
+  await fillFiltersSeries('actors', document.querySelector('.list-actors-series') as HTMLElement, actors)
 }
 
 async function searchDirector() {
-  const input = document.querySelector('input.searchDirector') as HTMLInputElement;
+  const input = document.querySelector('input.searchDirectorSerie') as HTMLInputElement;
   const directors = allDirectors.filter(director => director.toLowerCase().includes(input.value.toLowerCase()));
-  await fillFiltersSeries('directors', document.querySelector('.list-directors') as HTMLElement, directors)
+  await fillFiltersSeries('directors', document.querySelector('.list-directors-series') as HTMLElement, directors)
 }
 
 export const actorSerieChange = debounce(() => searchActor());
@@ -288,13 +287,13 @@ export function closePopupSerie() {
 }
 
 async function fetchActorsSerie() {
-  const result = await fetch(`${API_URL}/series/acteurs`);
+  const result = await fetch(`series/acteurs`);
   const content = await result.json();
   allActors = content;
 }
 
 async function fetchDirectorsSerie() {
-  const result = await fetch(`${API_URL}/series/realisateurs`);
+  const result = await fetch(`series/realisateurs`);
   const content = await result.json();
   allDirectors = content;
 }
@@ -305,7 +304,7 @@ export async function navigate(direction: string, page: number) {
 
 async function fetchSeries(page: number, direction?: string): Promise<void> {
   if (direction) carouselSerie.replaceChild(direction === 'right' ? loaderRight : loaderLeft, carouselSerie.children[direction === 'right' ? 2 : 0]);
-  const result = await fetch(`${API_URL}/series/${filterMode === "exclusion" ? 'exclusions' : 'inclusions'}/${page}`, {
+  const result = await fetch(`series/${filterMode === "exclusion" ? 'exclusions' : 'inclusions'}/${page}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -387,8 +386,8 @@ window.actorSelectedForSerie = actorSelectedForSerie;
 window.actorSerieChange = actorSerieChange;
 window.directorSerieChange = directorSerieChange;
 window.switchModeSerie = switchModeSerie;
-window.moreActors = moreActors;
-window.moreDirectors = moreDirectors;
+window.moreSerieActors = moreSerieActors;
+window.moreSerieDirectors = moreSerieDirectors;
 
 function updateTopPositions() {
   const viewportWidth = window.innerWidth;

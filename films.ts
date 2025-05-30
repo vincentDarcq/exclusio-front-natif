@@ -1,4 +1,3 @@
-import { API_URL } from "./index.js";
 import { debounce, disableArrow, enableArrow, loaderLeft, loaderRight, searchMovieInGlobal } from "./index.js";
 import { PageResult } from "./page_result.js";
 import { Movie } from "./movie_type.js";
@@ -198,7 +197,7 @@ async function moreDirectors() {
 
 async function fetchPersonPicture(person: string) {
   const stringPerson = person.replace(' ', '%20');
-  const searchPerson = await fetch(`${API_URL}/allo/${stringPerson}`);
+  const searchPerson = await fetch(`allo/${stringPerson}`);
   const resultPerson = await searchPerson.json();
   return resultPerson[0].data.thumbnail;
 }
@@ -296,13 +295,13 @@ export function closePopup() {
 }
 
 async function fetchActors() {
-  const result = await fetch(`${API_URL}/movies/acteurs`);
+  const result = await fetch(`movies/acteurs`);
   const content = await result.json();
   allActors = content;
 }
 
 async function fetchDirectors() {
-  const result = await fetch(`${API_URL}/movies/realisateurs`);
+  const result = await fetch(`movies/realisateurs`);
   const content = await result.json();
   allDirectors = content;
 }
@@ -313,7 +312,7 @@ export async function navigate(direction: string, page: number) {
 
 async function fetchFilms(page: number, direction?: string): Promise<void> {
   if (direction) caroussels.replaceChild(direction === 'right' ? loaderRight : loaderLeft, caroussels.children[direction === 'right' ? 2 : 0]);
-  const result = await fetch(`${API_URL}/movies/${filterMode === "exclusion" ? 'exclusions' : 'inclusions'}/${page}`, {
+  const result = await fetch(`movies/${filterMode === "exclusion" ? 'exclusions' : 'inclusions'}/${page}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

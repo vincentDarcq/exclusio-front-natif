@@ -74,6 +74,11 @@
     border: 2px solid #ccc;
     cursor: pointer;
 }
+
+.series-filters input[type="checkbox"]:checked {
+    background: #FFFF !important;
+}
+
 .selection_series{
     width:70vw;
     margin: 25px auto;

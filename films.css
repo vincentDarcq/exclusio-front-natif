@@ -94,9 +94,6 @@
     border: 2px solid #ccc;
     cursor: pointer;
 }
-.list-directors input[type=checkbox], .list-actors input[type=checkbox]{
-    margin: 5px;
-}
 
 .films-filters input[type="checkbox"]:checked {
   background: #FFFF !important;

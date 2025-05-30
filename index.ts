@@ -23,8 +23,6 @@ declare global {
   }
 }
 
-export const API_URL = 'http://localhost:8080';
-
 document.querySelector('.globalSearch')!.addEventListener('focus', () => {
   if(globalSearchList.length > 0) fillGlobalResults();
 });
@@ -69,7 +67,7 @@ async function search(){
     const loader = document.createElement('i');
     loader.classList.add('fa', 'fa-spinner', 'spinner');
     searchElement.replaceChild(loader, searchElement.children[1])
-    const search = await fetch(`${API_URL}/movies/findSubTitle/${input.value.toLowerCase()}`);
+    const search = await fetch(`movies/findSubTitle/${input.value.toLowerCase()}`);
     globalSearchList = await search.json();
     if(globalSearchList.length > 0) fillGlobalResults();
     const magnifying = document.createElement('i');
@@ -116,7 +114,7 @@ export function searchSerieInGlobal(id: string): Serie | undefined{
 }
 
 export async function logout() {
-  await fetch(`${API_URL}/connexion/logout`, {
+  await fetch(`connexion/logout`, {
     method: "GET",
     credentials: "include",
   })
